@@ -1,0 +1,458 @@
+
+             SystemC 2.2.0 --- Aug  8 2011 18:08:47
+        Copyright (c) 1996-2006 by all Contributors
+                    ALL RIGHTS RESERVED
+ *** A simulação está começando ***
+ArchC: -------------------- Starting Simulation --------------------
+
+@ Executando instrução no endereço 0x0000000000 (instrução à esquerda)
+@ LOAD MQ, M(X), X = 0x00106
++ AC:  0x0000000000	MQ: 0x000000000A	PC: 0x0000000000
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000000 (instrução à direita)
+@ MUL M(X), X = 0x00105
++ AC:  0x0000000000	MQ: 0x00000088B8	PC: 0x0000000000
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000001 (instrução à esquerda)
+@ LOAD MQ, X = 0x00000
++ AC:  0x00000088B8	MQ: 0x00000088B8	PC: 0x0000000001
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000001 (instrução à direita)
+@ STOR MX, X = 0x00100
++ AC:  0x00000088B8	MQ: 0x00000088B8	PC: 0x0000000001
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000002 (instrução à esquerda)
+@ RSH
++ AC:  0x000000445C	MQ: 0x00000088B8	PC: 0x0000000002
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000002 (instrução à direita)
+@ STOR MX, X = 0x00101
++ AC:  0x000000445C	MQ: 0x00000088B8	PC: 0x0000000002
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à esquerda)
+@ LOAD MX, X = 0x00100
++ AC:  0x00000088B8	MQ: 0x00000088B8	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à direita)
+@ DIV M(X), X = 0x00101
++ AC:  0x0000000000	MQ: 0x0000000002	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à esquerda)
+@ LOAD MQ, X = 0x00000
++ AC:  0x0000000002	MQ: 0x0000000002	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à direita)
+@ ADD M(X), X = 0x00101
++ AC:  0x000000445E	MQ: 0x0000000002	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à esquerda)
+@ RSH
++ AC:  0x000000222F	MQ: 0x0000000002	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à direita)
+@ STOR MX, X = 0x00101
++ AC:  0x000000222F	MQ: 0x0000000002	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à esquerda)
+@ LOAD MX, X = 0x00103
++ AC:  0x0000000009	MQ: 0x0000000002	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à direita)
+@ SUB M(X), X = 0x00104
++ AC:  0x0000000008	MQ: 0x0000000002	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à esquerda)
+@ STOR MX, X = 0x00103
++ AC:  0x0000000008	MQ: 0x0000000002	PC: 0x0000000007
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à direita)
+@ JUMP+M(X, 0:19), X = 0x00003
+@ Salto realizado
++ AC:  0x0000000008	MQ: 0x0000000002	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à esquerda)
+@ LOAD MX, X = 0x00100
++ AC:  0x00000088B8	MQ: 0x0000000002	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à direita)
+@ DIV M(X), X = 0x00101
++ AC:  0x000000222B	MQ: 0x0000000003	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à esquerda)
+@ LOAD MQ, X = 0x00000
++ AC:  0x0000000003	MQ: 0x0000000003	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à direita)
+@ ADD M(X), X = 0x00101
++ AC:  0x0000002232	MQ: 0x0000000003	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à esquerda)
+@ RSH
++ AC:  0x0000001119	MQ: 0x0000000003	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à direita)
+@ STOR MX, X = 0x00101
++ AC:  0x0000001119	MQ: 0x0000000003	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à esquerda)
+@ LOAD MX, X = 0x00103
++ AC:  0x0000000008	MQ: 0x0000000003	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à direita)
+@ SUB M(X), X = 0x00104
++ AC:  0x0000000007	MQ: 0x0000000003	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à esquerda)
+@ STOR MX, X = 0x00103
++ AC:  0x0000000007	MQ: 0x0000000003	PC: 0x0000000007
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à direita)
+@ JUMP+M(X, 0:19), X = 0x00003
+@ Salto realizado
++ AC:  0x0000000007	MQ: 0x0000000003	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à esquerda)
+@ LOAD MX, X = 0x00100
++ AC:  0x00000088B8	MQ: 0x0000000003	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à direita)
+@ DIV M(X), X = 0x00101
++ AC:  0x0000001109	MQ: 0x0000000007	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à esquerda)
+@ LOAD MQ, X = 0x00000
++ AC:  0x0000000007	MQ: 0x0000000007	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à direita)
+@ ADD M(X), X = 0x00101
++ AC:  0x0000001120	MQ: 0x0000000007	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à esquerda)
+@ RSH
++ AC:  0x0000000890	MQ: 0x0000000007	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à direita)
+@ STOR MX, X = 0x00101
++ AC:  0x0000000890	MQ: 0x0000000007	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à esquerda)
+@ LOAD MX, X = 0x00103
++ AC:  0x0000000007	MQ: 0x0000000007	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à direita)
+@ SUB M(X), X = 0x00104
++ AC:  0x0000000006	MQ: 0x0000000007	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à esquerda)
+@ STOR MX, X = 0x00103
++ AC:  0x0000000006	MQ: 0x0000000007	PC: 0x0000000007
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à direita)
+@ JUMP+M(X, 0:19), X = 0x00003
+@ Salto realizado
++ AC:  0x0000000006	MQ: 0x0000000007	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à esquerda)
+@ LOAD MX, X = 0x00100
++ AC:  0x00000088B8	MQ: 0x0000000007	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à direita)
+@ DIV M(X), X = 0x00101
++ AC:  0x0000000848	MQ: 0x000000000F	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à esquerda)
+@ LOAD MQ, X = 0x00000
++ AC:  0x000000000F	MQ: 0x000000000F	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à direita)
+@ ADD M(X), X = 0x00101
++ AC:  0x000000089F	MQ: 0x000000000F	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à esquerda)
+@ RSH
++ AC:  0x000000044F	MQ: 0x000000000F	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à direita)
+@ STOR MX, X = 0x00101
++ AC:  0x000000044F	MQ: 0x000000000F	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à esquerda)
+@ LOAD MX, X = 0x00103
++ AC:  0x0000000006	MQ: 0x000000000F	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à direita)
+@ SUB M(X), X = 0x00104
++ AC:  0x0000000005	MQ: 0x000000000F	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à esquerda)
+@ STOR MX, X = 0x00103
++ AC:  0x0000000005	MQ: 0x000000000F	PC: 0x0000000007
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à direita)
+@ JUMP+M(X, 0:19), X = 0x00003
+@ Salto realizado
++ AC:  0x0000000005	MQ: 0x000000000F	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à esquerda)
+@ LOAD MX, X = 0x00100
++ AC:  0x00000088B8	MQ: 0x000000000F	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à direita)
+@ DIV M(X), X = 0x00101
++ AC:  0x0000000327	MQ: 0x000000001F	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à esquerda)
+@ LOAD MQ, X = 0x00000
++ AC:  0x000000001F	MQ: 0x000000001F	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à direita)
+@ ADD M(X), X = 0x00101
++ AC:  0x000000046E	MQ: 0x000000001F	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à esquerda)
+@ RSH
++ AC:  0x0000000237	MQ: 0x000000001F	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à direita)
+@ STOR MX, X = 0x00101
++ AC:  0x0000000237	MQ: 0x000000001F	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à esquerda)
+@ LOAD MX, X = 0x00103
++ AC:  0x0000000005	MQ: 0x000000001F	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à direita)
+@ SUB M(X), X = 0x00104
++ AC:  0x0000000004	MQ: 0x000000001F	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à esquerda)
+@ STOR MX, X = 0x00103
++ AC:  0x0000000004	MQ: 0x000000001F	PC: 0x0000000007
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à direita)
+@ JUMP+M(X, 0:19), X = 0x00003
+@ Salto realizado
++ AC:  0x0000000004	MQ: 0x000000001F	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à esquerda)
+@ LOAD MX, X = 0x00100
++ AC:  0x00000088B8	MQ: 0x000000001F	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à direita)
+@ DIV M(X), X = 0x00101
++ AC:  0x000000019D	MQ: 0x000000003D	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à esquerda)
+@ LOAD MQ, X = 0x00000
++ AC:  0x000000003D	MQ: 0x000000003D	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à direita)
+@ ADD M(X), X = 0x00101
++ AC:  0x0000000274	MQ: 0x000000003D	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à esquerda)
+@ RSH
++ AC:  0x000000013A	MQ: 0x000000003D	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à direita)
+@ STOR MX, X = 0x00101
++ AC:  0x000000013A	MQ: 0x000000003D	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à esquerda)
+@ LOAD MX, X = 0x00103
++ AC:  0x0000000004	MQ: 0x000000003D	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à direita)
+@ SUB M(X), X = 0x00104
++ AC:  0x0000000003	MQ: 0x000000003D	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à esquerda)
+@ STOR MX, X = 0x00103
++ AC:  0x0000000003	MQ: 0x000000003D	PC: 0x0000000007
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à direita)
+@ JUMP+M(X, 0:19), X = 0x00003
+@ Salto realizado
++ AC:  0x0000000003	MQ: 0x000000003D	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à esquerda)
+@ LOAD MX, X = 0x00100
++ AC:  0x00000088B8	MQ: 0x000000003D	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à direita)
+@ DIV M(X), X = 0x00101
++ AC:  0x0000000092	MQ: 0x000000006F	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à esquerda)
+@ LOAD MQ, X = 0x00000
++ AC:  0x000000006F	MQ: 0x000000006F	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à direita)
+@ ADD M(X), X = 0x00101
++ AC:  0x00000001A9	MQ: 0x000000006F	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à esquerda)
+@ RSH
++ AC:  0x00000000D4	MQ: 0x000000006F	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à direita)
+@ STOR MX, X = 0x00101
++ AC:  0x00000000D4	MQ: 0x000000006F	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à esquerda)
+@ LOAD MX, X = 0x00103
++ AC:  0x0000000003	MQ: 0x000000006F	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à direita)
+@ SUB M(X), X = 0x00104
++ AC:  0x0000000002	MQ: 0x000000006F	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à esquerda)
+@ STOR MX, X = 0x00103
++ AC:  0x0000000002	MQ: 0x000000006F	PC: 0x0000000007
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à direita)
+@ JUMP+M(X, 0:19), X = 0x00003
+@ Salto realizado
++ AC:  0x0000000002	MQ: 0x000000006F	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à esquerda)
+@ LOAD MX, X = 0x00100
++ AC:  0x00000088B8	MQ: 0x000000006F	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à direita)
+@ DIV M(X), X = 0x00101
++ AC:  0x0000000014	MQ: 0x00000000A5	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à esquerda)
+@ LOAD MQ, X = 0x00000
++ AC:  0x00000000A5	MQ: 0x00000000A5	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à direita)
+@ ADD M(X), X = 0x00101
++ AC:  0x0000000179	MQ: 0x00000000A5	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à esquerda)
+@ RSH
++ AC:  0x00000000BC	MQ: 0x00000000A5	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à direita)
+@ STOR MX, X = 0x00101
++ AC:  0x00000000BC	MQ: 0x00000000A5	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à esquerda)
+@ LOAD MX, X = 0x00103
++ AC:  0x0000000002	MQ: 0x00000000A5	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à direita)
+@ SUB M(X), X = 0x00104
++ AC:  0x0000000001	MQ: 0x00000000A5	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à esquerda)
+@ STOR MX, X = 0x00103
++ AC:  0x0000000001	MQ: 0x00000000A5	PC: 0x0000000007
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à direita)
+@ JUMP+M(X, 0:19), X = 0x00003
+@ Salto realizado
++ AC:  0x0000000001	MQ: 0x00000000A5	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à esquerda)
+@ LOAD MX, X = 0x00100
++ AC:  0x00000088B8	MQ: 0x00000000A5	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à direita)
+@ DIV M(X), X = 0x00101
++ AC:  0x0000000020	MQ: 0x00000000BA	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à esquerda)
+@ LOAD MQ, X = 0x00000
++ AC:  0x00000000BA	MQ: 0x00000000BA	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à direita)
+@ ADD M(X), X = 0x00101
++ AC:  0x0000000176	MQ: 0x00000000BA	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à esquerda)
+@ RSH
++ AC:  0x00000000BB	MQ: 0x00000000BA	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à direita)
+@ STOR MX, X = 0x00101
++ AC:  0x00000000BB	MQ: 0x00000000BA	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à esquerda)
+@ LOAD MX, X = 0x00103
++ AC:  0x0000000001	MQ: 0x00000000BA	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à direita)
+@ SUB M(X), X = 0x00104
++ AC:  0x0000000000	MQ: 0x00000000BA	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à esquerda)
+@ STOR MX, X = 0x00103
++ AC:  0x0000000000	MQ: 0x00000000BA	PC: 0x0000000007
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à direita)
+@ JUMP+M(X, 0:19), X = 0x00003
+@ Salto realizado
++ AC:  0x0000000000	MQ: 0x00000000BA	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à esquerda)
+@ LOAD MX, X = 0x00100
++ AC:  0x00000088B8	MQ: 0x00000000BA	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000003 (instrução à direita)
+@ DIV M(X), X = 0x00101
++ AC:  0x000000001F	MQ: 0x00000000BB	PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à esquerda)
+@ LOAD MQ, X = 0x00000
++ AC:  0x00000000BB	MQ: 0x00000000BB	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000004 (instrução à direita)
+@ ADD M(X), X = 0x00101
++ AC:  0x0000000176	MQ: 0x00000000BB	PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à esquerda)
+@ RSH
++ AC:  0x00000000BB	MQ: 0x00000000BB	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000005 (instrução à direita)
+@ STOR MX, X = 0x00101
++ AC:  0x00000000BB	MQ: 0x00000000BB	PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à esquerda)
+@ LOAD MX, X = 0x00103
++ AC:  0x0000000000	MQ: 0x00000000BB	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000006 (instrução à direita)
+@ SUB M(X), X = 0x00104
++ AC:  0xFFFFFFFFFF	MQ: 0x00000000BB	PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à esquerda)
+@ STOR MX, X = 0x00103
++ AC:  0xFFFFFFFFFF	MQ: 0x00000000BB	PC: 0x0000000007
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000007 (instrução à direita)
+@ JUMP+M(X, 0:19), X = 0x00003
+@ Salto não realizado
++ AC:  0xFFFFFFFFFF	MQ: 0x00000000BB	PC: 0x0000000007
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000008 (instrução à esquerda)
+@ LOAD MX, X = 0x00101
++ AC:  0x00000000BB	MQ: 0x00000000BB	PC: 0x0000000008
+--------------------------------------------------------------
+@ Executando instrução no endereço 0x0000000008 (instrução à direita)
+@ JUMP M(X, 0:19), X = 0x00400
++ AC:  0x00000000BB	MQ: 0x00000000BB	PC: 0x0000000400
+--------------------------------------------------------------
+ArchC: Address out of bounds (pc=0x800).
+ArchC: -------------------- Simulation Finished --------------------
+ *** A simulação terminou ***
+SystemC: simulation stopped by user.
+ArchC: Simulation statistics
+    Times: 0.00 user, 0.00 system, 0.00 real
+    Number of instructions executed: 108
+    Simulation speed: (too fast to be precise)
+

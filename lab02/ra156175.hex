@@ -1,0 +1,66 @@
+# Lauro Cruz e Souza
+# RA: 156175
+# laurocruzsouza@gmail.com | lauro.souza@students.ic.unicamp.br
+
+# 000 LOAD MQ,M(106)     # Passa g para MQ
+#     MUL M(105)         # Realiza g*x
+
+# 001 LOAD MQ            # Passa y = gx de MQ para AC
+#     STOR M(100)        # Armazena y em 0x100
+
+# 002 RSH                # Divide AC por 2 (y/2)
+#     STOR M(101)        # Armazena k = y/2 em 0x101
+
+# 003 LOAD M(100)        # Coloca y em AC
+#     DIV M(101)         # Divide y (AC) por k (0x101) e armazena em MQ
+
+# 004 LOAD MQ            # Passa y/k de MQ para AC
+#     ADD M(101)         # Soma y/k (AC) com k (0x101)
+
+# 005 RSH                # Divide k + y/k (AC) por 2 
+#     STOR M(101)        # Armazena o novo valor de k em 0x101
+
+# 006 LOAD M(103)        # Coloca o valor do contador em AC
+#     SUB M(104)         # Decrementa o valor do contador
+
+# 007 STOR M(103)        # Armazena o contador em 0x103
+#     JUMP+ M(003, 0:19) # Contador >= 0, volta em 003
+
+# 008 LOAD M(101)        # Armazena k em AC
+#     JUMP M(400, 0:19)  # Pula para posicao 0x400 inexistente (termina execucao)
+
+
+
+000 09 106 0B 105
+
+001 0A 000 21 100
+
+002 15 000 21 101
+
+003 01 100 0C 101
+
+004 0A 000 05 101
+
+005 15 000 21 101
+
+006 01 103 06 104
+
+007 21 103 0F 003
+
+008 01 101 0D 400
+
+
+
+
+100 00 00 00 00 00  # y
+
+101 00 00 00 00 00  # k
+
+103 00 00 00 00 09  # Contador
+
+104 00 00 00 00 01  # Constante 1
+
+105 00 00 00 0D AC  # x
+
+106 00 00 00 00 0A  # g
+

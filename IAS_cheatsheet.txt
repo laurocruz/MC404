@@ -1,0 +1,20 @@
+05 ADD M(X)             AC := AC + Mem[X]
+07 ADD |M(X)|           AC := AC + |Mem[X]|
+0C DIV M(X)             MQ := AC / Mem[X]
+0D JUMP M(X,0:19)       Salta para a instrução à esquerda
+0E JUMP M(X,20:39)      Salta para a instrução à direita
+0F JUMP+M(X,0:19)       Se AC ≥ 0 então salta
+10 JUMP+M(X,20:39)      Se AC ≥ 0 então salta
+02 LOAD -M(X)           AC := -(Mem[X])
+01 LOAD M(X)            AC := Mem[X]
+0A LOAD MQ              AC := MQ
+09 LOAD MQ,M(X)         MQ := Mem[X]
+03 LOAD |M(X)|          AC := |Mem[X]|)
+14 LSH                  AC := AC << 1
+0B MUL M(X)             AC:MQ := MQ × Mem[X]
+15 RSH                  AC := AC >> 1
+21 STOR M(X)            Mem[X] := AC
+13 STOR M(X,28:39)      Move os 12 bits à direita
+12 STOR M(X,8:19)       Move os 12 bits à direita
+06 SUB M(X)             AC := AC - Mem[X]
+08 SUB |M(X)|           AC := AC - |Mem[X]|

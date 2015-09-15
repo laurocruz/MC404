@@ -1,0 +1,15 @@
+
+.org 0x000
+LD|  var1:
+loop:
+ADD  "var2"
+	  ST "var3"
+	  JUMP+ "loop"
+	var1:
+	  .word 0
+	  var2:
+	    .word 1
+		var3:
+		  .word 2
+		  end:
+		    JUMP "end"

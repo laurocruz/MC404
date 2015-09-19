@@ -1,6 +1,6 @@
 
 .org 0x000
-LD|  var1:
+LD|  "var1"
 loop:
 ADD  "var2"
 	  ST "var3"
@@ -12,4 +12,5 @@ ADD  "var2"
 		var3:
 		  .word 2
 		  end:
-		    JUMP "end"
+		    JMP "end"
+

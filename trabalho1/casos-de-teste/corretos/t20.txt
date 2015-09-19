@@ -11,7 +11,7 @@ programa: #aqui serao as intrucoes
 ADD "0x0000000100"
 .align 1
 varx: .word 1
-SUB varx:
+SUB "varx"
 LSH
 STaddr "0" # mudando o valor do endereco
 

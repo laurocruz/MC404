@@ -1,8 +1,8 @@
 .org 0x0000000101
-JUMP "0x0000000400"
+JMP "0x0000000400"
 
 loop1:
-	JUMP "loop1"
+	JMP "loop1"
 	.align 2
 loop2:
-	JUMP "loop2"
+	JMP "loop2"

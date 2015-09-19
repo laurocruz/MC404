@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 
 #include "data.h"
 
@@ -93,11 +94,9 @@ Boolean SYM_verify(char * word) {
 }
 
 Boolean hex_verify(char * hex) {
-    if (strlen(hex) != 12) return false;
-
     if (hex[0] != '0' || hex[1] != 'x') return false;
 
-    for (short int i = 2; i < 12; i++) {
+    for (short int i = 2; i < strlen(hex); i++) {
         if (hex[i] <= 0x2F || (hex[i] >= 0x3A && hex[i] <= 0x40) ||
                 (hex[i] >= 0x47 && hex[i] <= 0x60) || hex[i] >= 0x67)
             return false;
@@ -121,6 +120,11 @@ Boolean dec_verify(char * dec, int min, int max) {
     if (val < min || val > max) return false;
 
     return true;
+}
+
+void upper_case(char * SYM) {
+    for (int i = 0; SYM[i] != '\0'; i++)
+        SYM[i] = toupper(SYM[i]);
 }
 
 
@@ -162,7 +166,7 @@ void set_dir(Boolean rot) {
         test_eol(token);
 
         if (!SYM_verify(token)) {
-            wrong(".set with invalid SYM");
+            wrong(".set: invalid SYM");
             // SYM com caracter inválido
         }
 
@@ -174,11 +178,11 @@ void set_dir(Boolean rot) {
             if (hex_verify(token)) {
                 long int parameter = strtol(token, NULL, 16);
                 if (parameter < 0 || parameter > 2147483647) {
-                    wrong(".set with invalid parameter value");
+                    wrong(".set: invalid parameter value");
                     // ERRO: Parâmetro inválido
                 }
             } else {
-                wrong(".set with invalid parameter value");
+                wrong(".set: invalid parameter value");
                 // ERRO: Parâmetro inválido
             }
         }
@@ -194,12 +198,12 @@ void set_dir(Boolean rot) {
         else value = atoi(token2);
 
         if (get_value(rotulos, token) != -1024) {
-            wrong("already exists label with .set SYM name");
+            wrong(".set: label with same name already exists");
             // ERRO: Ja existe label com o nome desse SYM
         }
-
+        upper_case(token);
         if (!insert_instance(sets, token, value)) {
-            wrong("already exists SYM with .set SYM name");
+            wrong(".set: SYM already exists");
             // ERRO: SYM ja existe
         }
     }
@@ -215,7 +219,7 @@ void org_dir(unsigned short int pos[], Boolean rot) {
         if (hex_verify(token)) {
             long int parameter = strtol(token, NULL, 16);
             if (parameter < 0 || parameter > 0x3FF) {
-                wrong("not a valid memory position on .org");
+                wrong(".org: invalid memory position");
                 // ERRO: Posicao Inexistente
             } 
             pos[0] = (unsigned short int)parameter;
@@ -225,7 +229,7 @@ void org_dir(unsigned short int pos[], Boolean rot) {
             pos[0] = parameter;
             pos[1] = 0;
         } else {
-            wrong("invalid parameter");
+            wrong(".org: invalid parameter");
             // ERRO: Parametro invalido
         }
     } else {
@@ -247,30 +251,32 @@ void align_dir(unsigned short int pos[], Boolean rot) {
         test_eol(token);
 
         if (pos[0] >= 0x3FF) {
-            wrong("surpassed memory size");
+            wrong(".align: invalid memory position");
             // ERRO: Ultrapassou limite da memoria
         }   
 
         if (dec_verify(token, 0, 0x3FF)) {
             unsigned short int parameter = (unsigned short int)atoi(token);
 
-            if ((pos[0] % parameter == 0) && (pos[1] = 1)) {
-                if (pos[0] + parameter > 0x3FF) {
-                    wrong("surpassed memory size");
-                    // ERRO: Ultrapassou limite da memoria
+            if (pos[0] % parameter == 0) {
+                if (pos[1] == 1) {
+                    if (pos[0] + parameter > 0x3FF) {
+                        wrong(".align: invalid memory position");
+                        // ERRO: Ultrapassou limite da memoria
+                    }
+                    pos[0] += parameter;
+                    pos[1] = 0;
                 }
-                pos[0] += parameter;
-                pos[1] = 0;
             } else {
                 if (pos[0] + parameter - (pos[0] % parameter) > 0x3FF) {
-                    wrong("surpassed memory size");
+                    wrong(".align: invalid memory position");
                     // ERRO: Ultrapassou limite de memoria
                 }
                 pos[0] += parameter - (pos[0] % parameter);
                 pos[1] = 0;
             }
         } else {
-            wrong("invalid parameter for .align");
+            wrong(".align: invalid parameter");
             // ERRO: Parametro invalido
         }
 
@@ -279,9 +285,11 @@ void align_dir(unsigned short int pos[], Boolean rot) {
 
         unsigned short int parameter = (unsigned short int)atoi(token);
 
-        if ((pos[0] % parameter == 0) && (pos[1] == 1)) {
-            pos[0] += parameter;
-            pos[1] = 0;
+        if (pos[0] % parameter == 0) {
+            if (pos[1] == 1) {
+                pos[0] += parameter;
+                pos[1] = 0;
+            }
         } else {
             pos[0] += parameter - (pos[0] % parameter);
             pos[1] = 0;
@@ -289,24 +297,6 @@ void align_dir(unsigned short int pos[], Boolean rot) {
     }
 }
 
-/*
-
-
-   void dec_into_map(unsigned int dec, char * line) {
-
-   line[WORD_SIZE] = '\0';
-   line[WORD_SIZE-1] = get_hex_char(dec & 0xF);
-   line[WORD_SIZE-2] = get_hex_char((dec & 0xF0) >> 4);
-   line[WORD_SIZE-3] = get_hex_char((dec & 0xF00) >> 8);
-   line[WORD_SIZE-4] = get_hex_char((dec & 0xF000) >> 12);
-   line[WORD_SIZE-5] = get_hex_char((dec & 0xF0000) >> 16);
-   line[WORD_SIZE-6] = get_hex_char((dec & 0xF00000) >> 20);
-   line[WORD_SIZE-7] = get_hex_char((dec & 0xF000000) >> 24);
-   line[WORD_SIZE-8] = get_hex_char((dec & 0xF0000000) >> 28);
-   line[1] = line[0] = '0';
-   }
-
-*/
 
 void dec_into_map(BYTE * line, int dec) {
     int absdec = abs(dec);
@@ -404,9 +394,10 @@ void word_dir(BYTE ** map, unsigned short int pos[], Boolean rot) {
                     wrong(".word: label does not exist");
                     // ERRO: Rotulo ou SYM não existe
                 }
-                value = abs(value);
+                value = abs(value) % 1025;
 
             } else {
+                upper_case(token);
                 value = get_value(sets, token);
                 if (value == -1024) {
                     wrong(".word: SYM does not exist");
@@ -483,8 +474,9 @@ void wfill_dir(BYTE ** map, unsigned short int pos[], Boolean rot) {
                 if (value == -1024) {
                     wrong(".wfill: label does not exist");
                 }
-                value = abs(value);
+                value = abs(value) % 1025;
             } else {
+                upper_case(token);
                 value = get_value(sets, token);
 
                 if (value == -1024) {
@@ -560,8 +552,14 @@ void manage_label(char * label, unsigned short int pos[]) {
 
     int value;
 
+    if(pos[0] == 0 && pos[1] == 1)
+        value = -1025;
+
     if (pos[1] == 0) value = pos[0];
-    else value = -pos[0];
+    else {
+        if (pos[0] == 0) value = -1025;
+        else value = -pos[0];
+    }
 
     label[strlen(label)-1] = '\0';
 
@@ -725,10 +723,12 @@ void one_param_ins(BYTE ** map, int type, unsigned short int pos[], Boolean rot)
                 if (type >= 2 && type <= 4) { // Se é JMP, JUMP+ ou STaddr
                     if (param >= 0)
                         encode_instruction(map[pos[0]], i_code[type], param, false);
-                    else 
-                        encode_instruction(map[pos[0]], i_code[type]+1, (-1)*param,false);
+                    else {
+                        param = ((-1)*param) % 1025;
+                        encode_instruction(map[pos[0]], i_code[type]+1, param, false);
+                    }
                 } else {
-                    encode_instruction(map[pos[0]], i_code[type], abs(param), false);
+                    encode_instruction(map[pos[0]], i_code[type], abs(param) % 1025, false);
                 }
             } else {
                 wrong("one_param: memory word already being used");
@@ -741,10 +741,12 @@ void one_param_ins(BYTE ** map, int type, unsigned short int pos[], Boolean rot)
                 if (type >= 2 && type <= 4) { // Se é JMP, JUMP+ ou Staddr
                     if (param >= 0)
                         encode_instruction(map[pos[0]], i_code[type], param, true);
-                    else 
-                        encode_instruction(map[pos[0]], i_code[type]+1, (-1)*param, true);
+                    else {
+                        param = ((-1)*param) % 1025;
+                        encode_instruction(map[pos[0]], i_code[type]+1, param, true);
+                    }
                 } else {
-                    encode_instruction(map[pos[0]], i_code[type], abs(param), true);
+                    encode_instruction(map[pos[0]], i_code[type], abs(param) % 1025, true);
                 }
             } else {
                 wrong("one_param: SIncronization error");
@@ -904,5 +906,4 @@ int main (int argc, char **argv) {
     }
     return 0;
 }
-
 

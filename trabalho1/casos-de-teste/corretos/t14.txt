@@ -1,8 +1,8 @@
 #testando esquerda e direita
 esquerda:
-	add "0"
+	ADD "0"
 direita:
-	add "0"
+	ADD "0"
 JMP "esquerda"
 JMP "direita"
 JUMP+ "esquerda"

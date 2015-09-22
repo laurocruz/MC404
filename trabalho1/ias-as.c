@@ -892,6 +892,8 @@ int main (int argc, char **argv) {
         }
     }
 
+    fclose(src);
+
     if (argc == 3) {
         FILE * output = fopen(argv[2], "w");
 
@@ -901,6 +903,8 @@ int main (int argc, char **argv) {
         }
 
         print_map(output, map);
+
+        fclose(output);
     } else {
         print_map(stdout, map);
     }

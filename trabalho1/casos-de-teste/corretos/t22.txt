@@ -1,5 +1,5 @@
 
-.org 0x000
+.org 0x0000000000
 LD|  "var1"
 loop:
 ADD  "var2"

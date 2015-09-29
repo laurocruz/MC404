@@ -1,6 +1,6 @@
-#define MAX_HASH 20
+#define MAX_HASH 10
 
-typedef enum {false, true} Boolean;
+typedef enum {false, true} bool;
 typedef char * String;
 typedef void * Table;
 
@@ -13,6 +13,8 @@ typedef struct Data {
 } Data; 
 
 Table HashInit();
-Boolean insert_instance (Table p, String name, int value);
+bool insert_instance (Table p, String name, int value);
 void print_table(Table p);
 int get_value(Table p, String name);
+void free_table(Table p);
+

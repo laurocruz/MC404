@@ -2,7 +2,7 @@
 .org 0x0000000100
 dados: #aqui irao os dados do programa
 
-	.word vinte
+	.word VINTE
 	.wfill 10 50
 
 .org 0

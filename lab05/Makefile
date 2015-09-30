@@ -1,7 +1,7 @@
 ASSEMBLER=arm-eabi-as
 LINKER=arm-eabi-ld
 SDMAKER=mksd.sh
-LDFLAGS=-Ttext=0x77802000 -Tdata=0x778020a0
+LDFLAGS=-Ttext=0x77802000 -Tdata=0x778020c0
 SIMULATOR=arm-sim
 
 sd: link assemble

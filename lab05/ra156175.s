@@ -47,24 +47,23 @@ skip:
 @ -- Fibonacci
 
 		mov r1, #1            @ r1 = 1
-		mov r2, #1            @ r2 = 1
-
-		cmp r0, #1			  @ Se r0 = 1 nada precisa ser feito
-		beq end
+        mov r2, #1            @ r2 = 1
 
 fibonacci:
-		add r3, r1, r2        @ r3 = r1 + r2
+		sub r0, r0, #1        @ Decrementa r0
+
+		cmp r0, #1            @ Se r0 <= 1 pula para o final
+		bls end               @  Pois chegou-se ao resultado em r2
+
+        add r3, r1, r2        @ r3 = r1 + r2
 
 		mov r1, r2            @ Desloca os valores nas variaveis
 		mov r2, r3            @ r1 = r2; r2 = r3
 
-		sub r0, r0, #1        @ Decrementa r0
-
-		cmp r0, #1            @ Faz-se mais uma iteracao
-		bgt fibonacci         @ se r0 > 1
+        b fibonacci           @ Realiza outra iteracao
 
 end:
-		mov r0, r1            @ Transfere o valor de r1 (resultado final)
+		mov r0, r2            @ Transfere o valor de r2 (resultado final)
 							  @ para r0 para fazer-se a conversao abaixo
 
 @ -- multiplica o numero por 2

@@ -53,7 +53,7 @@ skip:
 		bls end
 
 fibonacci:
-		add r3, r1, r2        @ r3 = r1 + r2
+        add r3, r1, r2        @ r3 = r1 + r2
 
 		mov r1, r2            @ Desloca os valores nas variaveis
 		mov r2, r3            @ r1 = r2; r2 = r3
@@ -66,9 +66,6 @@ fibonacci:
 end:
 		mov r0, r2            @ Transfere o valor de r2 (resultado final)
 							  @ para r0 para fazer-se a conversao abaixo
-
-@ -- multiplica o numero por 2
-@        mov r0, r0, LSL #1    @ multiplica por 2 o valor contido em r0
 
 @ -- converte o resultado (em r0) em uma sequencia de caracteres '0' e '1' no buffer string.
 

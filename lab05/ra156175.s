@@ -1,10 +1,10 @@
 @ Este codigo le um valor da entrada padrao, o multiplica por 2 e
 @ imprime o resultado na saida padrao.
 @ O valor a ser multiplicado sera recebido da entrada padrao na forma binaria.
-@ O valor binario devera conter EXATAMENTE 16 digitos. 
+@ O valor binario devera conter EXATAMENTE 16 digitos.
 @   ex:  2  = 0000000000000010
 @
-@ A resposta da entrada (o seu dobro) sera mostrado na saida padrao tambem no formato de 
+@ A resposta da entrada (o seu dobro) sera mostrado na saida padrao tambem no formato de
 @ uma string binaria de 16 digitos.
 @
 
@@ -14,7 +14,7 @@
 
 .align 4                      @ Alinha a posicao atual de montagem em um endereco multiplo de 4
 _start:                       @ ponto de entrada do programa.
-	
+
 @ -- le uma sequencia de 16 bytes da entrada padrao
 @ -- e armazena no buffer identificado pelo rotulo string.
 
@@ -33,8 +33,8 @@ _start:                       @ ponto de entrada do programa.
         mov  r2, #0           @ iterador de loop
 
 loop_c:
-        mov  r0, r0, LSL #1   @ desloca o valor de r0 para esquerda 
-                              @ LSB (bit menos significativo) de r0 recebe 0 
+        mov  r0, r0, LSL #1   @ desloca o valor de r0 para esquerda
+                              @ LSB (bit menos significativo) de r0 recebe 0
         ldrb r3, [r1, r2]     @ r3 = string[r2]
         cmp  r3, #49          @ compara r3 com '1'  (49 em ASCII)
         blt  skip             @ se for menor: r0 ja esta com 0 no LSB
@@ -44,10 +44,32 @@ skip:
         cmp r2, #16           @ compara r2 com o tamanho da string binaria
         blt loop_c            @ se ainda esta com um valor menor que o tamanho da string
 
-@ -- multiplica o numero por 2
+@ -- Fibonacci
 
-        mov r0, r0, LSL #1    @ multiplica por 2 o valor contido em r0
- 
+		mov r1, #1            @ r1 = 1
+		mov r2, #1            @ r2 = 1
+
+		cmp r0, #1			  @ Se r0 = 1 nada precisa ser feito
+		beq end
+
+fibonacci:
+		add r3, r1, r2        @ r3 = r1 + r2
+
+		mov r1, r2            @ Desloca os valores nas variaveis
+		mov r2, r3            @ r1 = r2; r2 = r3
+
+		sub r0, r0, #1        @ Decrementa r0
+
+		cmp r0, #1            @ Faz-se mais uma iteracao
+		bgt fibonacci         @ se r0 > 1
+
+end:
+		mov r0, r1            @ Transfere o valor de r1 (resultado final)
+							  @ para r0 para fazer-se a conversao abaixo
+
+@ -- multiplica o numero por 2
+@        mov r0, r0, LSL #1    @ multiplica por 2 o valor contido em r0
+
 @ -- converte o resultado (em r0) em uma sequencia de caracteres '0' e '1' no buffer string.
 
         ldr r1, =string       @ string  para preencher com string binaria
@@ -55,7 +77,7 @@ skip:
         mov r3, #1            @ valor para shift
 
 loop:
-        mov r4, #49           @ r4 = '1'    
+        mov r4, #49           @ r4 = '1'
         and r5, r0, r3        @ r5 = r0 AND r3
         cmp r5, #0            @ compara r5 com 0 (zero)
         bgt one               @ se for maior: r4 ja esta com '1'
@@ -79,7 +101,7 @@ one:
 
         mov r7, #1            @ carrega o valor 1 em r7, indicando a escolha da
                               @ syscall exit
-        svc 0x0         
+        svc 0x0
 
 .data @ Muda o ponto de montagem para a secao de dados
 

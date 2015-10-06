@@ -1,3 +1,7 @@
+@ Lauro Cruz e Souza - RA: 156175
+@ MC404
+@ laurocruzsouza@gmail.com | lauro.souza@students.ic.unicamp.br
+
 .text
 .align 4
 .globl _start
@@ -31,8 +35,8 @@ forward:
     cmp r0, r6
     blt turn
 
-    mov r0, #36             @ Faz o robê seguir em frente
-    mov r1, #36
+    mov r0, #63             @ Faz o robê seguir em frente
+    mov r1, #63
     mov r7, #124
     svc 0x0
 
@@ -40,7 +44,8 @@ forward:
 
 turn:
     mov r0, #0              @ Vira o robô para a direita
-    mov r1, #36
+    mov r1, #15
+
     mov r7, #124
     svc 0x0
 

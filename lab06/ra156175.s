@@ -51,6 +51,7 @@ turn:
 
     b loop
 
+@ Não utiliza, mas just in case
 end:                            @ Parar o robo
     mov r0, #0
     mov r1, #0

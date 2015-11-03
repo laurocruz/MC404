@@ -6,10 +6,10 @@
 .align 4
 .globl _start
 
-_start:                         @ main
+_start:                     @ main
     mov r0, #0              @ Carrega em r0 a velocidade do motor 0.
-                                @ Lembre-se: apenas os 6 bits menos significativos
-                                @ serao utilizados.
+                            @ Lembre-se: apenas os 6 bits menos significativos
+                            @ serao utilizados.
     mov r1, #0              @ Carrega em r1 a velocidade do motor 1.
     mov r7, #124            @ Identifica a syscall 124 (write_motors).
     svc 0x0                 @ Faz a chamada da syscall.

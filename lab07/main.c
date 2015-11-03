@@ -1,22 +1,35 @@
+// Lauro Cruz e Souza - RA: 156175
+// laurocruzsouza@gmail.com | lauro.souza@students.ic.unicamp.br
+
 #include "api_robot.h" /* Robot control API */
 
 void delay();
 
 /* main function */
-void _start(void) 
-{
-  unsigned int distances[16];
+void _start(void) {
 
-  /* While not close to anything. */
-  do {
-    set_speed_motors(25,25);
-    delay();
-    set_speed_motor(10,0);
-    delay();
-    set_speed_motors(25,10);
-    delay();
-    read_sonars(distances);
-  } while ( ( distances[4] > 1200 ) && ( distances[3] > 1200 ));
+    unsigned int distances[16];
+
+    while (1) {
+        if (read_sonar(3) > 1200 && read_sonar(4) > 1200)
+            set_speed_motors(40, 40);
+        else
+            set_speed_motors(15,0);
+    }
+
+    /*
+    do {
+
+        set_speed_motors(40, 40);
+        do {
+        } while (read_sonar(3) > 1500 && read_sonar(4) > 1500);
+
+        set_speed_motors(0,15);
+        do {
+        } while (read_sonar(3) > 1500 && read_sonar(4) > 1500);
+
+    } while(1);
+    */
 }
 
 /* Spend some time doing nothing. */

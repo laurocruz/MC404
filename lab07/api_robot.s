@@ -8,11 +8,10 @@
 
 .align 4
 
-@@@@@@@@@@@@@@@@@@
-@ r0 <- speed    @
-@ r1 <- motor id @
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@
 set_speed_motor:
+    @ r0 <- speed 
+    @ r1 <- motor id 
     cmp r1, #0          @ se r1 == 0, vai para funcao write_motor0
     beq write_motor0    @ caso contrario, vai para write_motor1
 
@@ -20,45 +19,35 @@ write_motor1:
     mov r7, #127
     svc 0x0
 
-    b final
+    bx lr
 
 write_motor0:
     mov r7, #126
     svc 0x0
 
-    b final
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    bx lr
 
-
-@@@@@@@@@@@@@@@@
-@ r0 <- speed 0@
-@ r1 <- speed 1@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@
 set_speed_motors:
-
-write_motors:
+    @ r0 <- speed 0
+    @ r1 <- speed 1
     mov r7, #124
     svc 0x0
 
-    b final
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    bx lr
 
-
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@ r0 <- sonar id                    @
-@ return (r0) <- 13-bit unsigned int@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@
 read_sonar:
+    @ r0 <- sonar id                    
+    @ return (r0) <- 13-bit unsigned int
     mov r7, #125 @ num for read_sonar
     svc 0x0
 
-    b final
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    bx lr
 
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-@ r0 <- array of integers address@
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@
 read_sonars:
+    @ r0 <- array of integers address
     mov r7, #125 @ num for read_sonar
     mov r1, r0   @ saves array address in r1 and r2
     mov r2, r0
@@ -74,7 +63,5 @@ do_while:
 
     mov r0, r2        @ stores the array address again in r0
 
-    b final:
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    bx lr
 
-final:

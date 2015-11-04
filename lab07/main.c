@@ -13,7 +13,7 @@ void _start(void) {
 
         stop = 0;
         while(!stop) {
-            if (read_sonar(3) > 1500 & read_sonar(4) > 1500) {
+            if (read_sonar(3) > 1500 && read_sonar(4) > 1500) {
                 set_speed_motors(40, 40);
                 stop = 1;
             }

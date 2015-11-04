@@ -10,7 +10,14 @@ void _start(void) {
 
     // super simple track to exercise all the control functions
     while (1) {
-        set_speed_motors(40, 40);
+
+        stop = 0;
+        while(!stop) {
+            if (read_sonar(3) > 1500 & read_sonar(4) > 1500) {
+                set_speed_motors(40, 40);
+                stop = 1;
+            }
+        }
 
         stop = 0;
         while (!stop) {
@@ -26,6 +33,5 @@ void _start(void) {
             set_speed_motor(15,0);
         else set_speed_motor(15,1);
 
-        while (read_sonar(3) < 1500 || read_sonar(4) < 1500);
     }
 }

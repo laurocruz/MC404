@@ -3,39 +3,29 @@
 
 #include "api_robot.h" /* Robot control API */
 
-void delay();
-
 /* main function */
 void _start(void) {
-
+    unsigned char stop;
     unsigned int distances[16];
 
+    // super simple track to exercise all the control functions
     while (1) {
-        if (read_sonar(3) > 1200 && read_sonar(4) > 1200)
-            set_speed_motors(40, 40);
-        else
-            set_speed_motors(15,0);
-    }
-
-    /*
-    do {
-
         set_speed_motors(40, 40);
-        do {
-        } while (read_sonar(3) > 1500 && read_sonar(4) > 1500);
 
-        set_speed_motors(0,15);
-        do {
-        } while (read_sonar(3) > 1500 && read_sonar(4) > 1500);
+        stop = 0;
+        while (!stop) {
+            if (read_sonar(3) < 1500 || read_sonar(4) < 1500) {
+                set_speed_motors(2, 2);
+                stop = 1;
+            }
+        }
 
-    } while(1);
-    */
-}
+        read_sonars(distances);
 
-/* Spend some time doing nothing. */
-void delay()
-{
-  int i;
-  /* Not the best way to delay */
-  for(i = 0; i < 10000; i++ );  
+        if ((distances[7] + distances[8]) < (distances[0] + distances[15]))
+            set_speed_motor(15,0);
+        else set_speed_motor(15,1);
+
+        while (read_sonar(3) < 1500 || read_sonar(4) < 1500);
+    }
 }

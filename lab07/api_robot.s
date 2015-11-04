@@ -1,4 +1,4 @@
- @ Lauro Cruz e Souza - RA: 156175
+@ Lauro Cruz e Souza - RA: 156175
 @ laurocruzsouza@gmail.com | lauro.souza@students.ic.unicamp.br
 
 .global set_speed_motor
@@ -61,22 +61,21 @@ read_sonars:
     @ r0 <- array of integers address
     stmfd sp!, {r7, lr}
 
-    mov r1, r0        @ saves array address in r1 and r2
-    mov r2, r0
+    mov r1, r0        @ saves array address in r1
     mov r3, #0
 
 do_while:
     mov r0, r3
-    mov r7, #125      @ num for read_sonar
-    svc 0x0
 
-    str r0, [r1], #4  @ stores the sonar distance in the array (32-bit integers)
+    stmfd sp!, {r1-r3}
+    bl read_sonar        @ calls the read_sonar function 
+    ldmfd sp!, {r1-r3}
 
-    add r3, r3, #1    @ increments r0 for the loop
-    cmp r3, #15
-    ble do_while      @ continue in the loop if r3 <= 15
+    str r0, [r1], #4     @ stores the sonar distance in the array (32-bit integers)
 
-    mov r0, r2        @ stores the array address again in r0
+    add r3, r3, #1       @ increments r0 for the loop
+    cmp r3, #16
+    blt do_while         @ continue in the loop if r3 <= 15
 
     ldmfd sp!, {r7, lr}
     mov pc, lr

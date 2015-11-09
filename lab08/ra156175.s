@@ -21,12 +21,12 @@ interrupt_vector:
 @@@@@@@@@@@@@@@@@@@@@@@@ TEXT @@@@@@@@@@@@@@@@@@@@
 .text
 
+RESET_HANDLER:
+
     @ Zera o contador
     ldr r2, =CONTADOR
     mov r0, #0
-    strb r0,[r2]
-
-RESET_HANDLER:
+    str r0,[r2]
 
     @Set interrupt table base address on coprocessor 15.
     ldr r0, =interrupt_vector
@@ -52,7 +52,7 @@ IRQ_HANDLER:
 
     @ Informa ao GPT que o processador está ciente de que ocorreu interrupcao
     mov r0, #0x1
-    strb r0, [r1]
+    str r0, [r1]
 
     @ Incrementa contador de interrupcoes
     ldr r1, =CONTADOR
@@ -140,4 +140,4 @@ SET_TZIC:
 @@@@@@@@@@@@@@@@@@@@@@@ DATA @@@@@@@@@@@@@@@@@@@@@
 .data
 
-CONTADOR: .byte 0x0
+CONTADOR: .word 0x0

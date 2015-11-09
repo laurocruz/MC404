@@ -24,7 +24,7 @@ interrupt_vector:
     @ Zera o contador
     ldr r2, =CONTADOR
     mov r0, #0
-    str r0,[r2]
+    strb r0,[r2]
 
 RESET_HANDLER:
 
@@ -52,7 +52,7 @@ IRQ_HANDLER:
 
     @ Informa ao GPT que o processador está ciente de que ocorreu interrupcao
     mov r0, #0x1
-    str r0, [r1]
+    strb r0, [r1]
 
     @ Incrementa contador de interrupcoes
     ldr r1, =CONTADOR
@@ -140,4 +140,4 @@ SET_TZIC:
 @@@@@@@@@@@@@@@@@@@@@@@ DATA @@@@@@@@@@@@@@@@@@@@@
 .data
 
-CONTADOR: .word 0x0
+CONTADOR: .byte 0x0

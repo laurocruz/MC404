@@ -201,15 +201,13 @@ svc_end:
 @          = -1 for invalid sonar id
 @@@
 svc_read_sonar:
+    stmfd sp!, {lr}
+
     @ if sonar id is invalid, exit syscall
     @ return -1
     cmp r0, #15
-    movgt r0, #-1
-    bgt end_read_sonar
-
-    cmp r0, #0
-    movlt r0, #-1
-    blt end_read_sonar
+    movhi r0, #-1
+    bhi end_read_sonar
 
     @ gets GPIO base
     ldr r1, =GPIO_BASE
@@ -246,7 +244,7 @@ check_flag:
     mov r2, r0
     and r2, r2, #1
 
-    @ if flag = 1, so te read is over and we have the distance
+    @ if flag = 1, so the read is over and we have the distance
     cmp r2, #1
     beq flag_defined
 
@@ -264,6 +262,7 @@ flag_defined:
     mov r0, r0, lsr #6
 
 end_read_sonar:
+    ldmfd sp!, {lr}
     mov pc, lr
 
 @@@@
@@ -276,8 +275,8 @@ end_read_sonar:
 @            0: standard
 @@@@
 svc_register_proximity_callback:
-
     stmfd sp!, {r4-r6, lr}
+
     @ Already at maximum number of callbacks
     ldr r3, =CALLBACK_REGS
     ldr r3, [r3]
@@ -315,24 +314,100 @@ end_rpc:
 
 @@@@
 @ in:  r0 = motor id (0 or 1)
-@      r1 = speed
+@      r1 = motor speed
 @
 @ out: r0 = -1: invalid motor id
 @           -2: invalid speed
 @            0: ok
 @@@@
 svc_set_motor_speed:
+    stmfd sp!, {lr}
+
+    @ Invalid motor speed
+    cmp r1, #63
+    movhi r0, #-2
+    bhi end_motor_speed
+
+    @ Verify motor id
+    @ motor0
+    cmp r0, #0
+    beq set_motor0
+
+    @ motor1
+    cmp r0, #1
+    beq set_motor1
+
+    @ Invalid id
+    mov r0, #-1
+    b end_motor_speed
+
+set_motor0:
+    @ Set controll array for GPIO_DR
+    mov r1, r1, lsl #19
+    orr r1, r1, #1, lsl #18
+
+    @ Stores the array in GPIO_DR
+    ldr r2, =GPIO_BASE
+
+    str r1, [r2, #GPIO_DR]
+
+    mov r0, #0
+
+set_motor1:
+    @ Set controll array for GPIO_DR
+    mov r1, r1, lsl #26
+    orr r1, r1, #1, lsl #25
+
+    @ Stores the array in GPIO_DR
+    ldr r2, =GPIO_BASE
+
+    str r1, [r2, #GPIO_DR]
+
+    mov r0, #0
+
+end_motor_speed:
+    ldmfd sp!, {lr}
+    mov pc, lr
 
 
 @@@@
-@ in:  r0 = motor0 speed
-@      r1 = motor1 speed
+@ in:  r0 = motor0 speed (0 - 63)
+@      r1 = motor1 speed (0 - 63)
 @
 @ out: r0 = -1: invalid motor0 speed
 @           -2: invalid motor1 speed
 @            0: ok
 @@@@
 svc_set_motors_speed:
+    stmfd sp!, {lr}
+
+    @ Invalid motor0 speed
+    cmp r0, #63  @ Max speed
+    movhi r0, #-1
+    bhi end_motors_speed
+
+    @ Invalid motor1 speed
+    cmp r1, #63
+    movhi r0, #-1
+    bhi end_motors_speed
+
+    @ All ok
+    @ Makes the array for GPIO_DR in r1
+    mov r1, r1, lsl #26
+    orr r1, r1, r0, lsl #19
+    orr r1, r1, #1, #25
+    orr r1, r1, #1, #18
+
+    @ Copies the array to GPIO_DR
+    ldr r2, =GPIO_BASE
+    str r1, [r2, #GPIO_DR]
+
+    @ Sets the ok flag
+    mov r0, #0
+
+end_motors_speed:
+    ldmfd sp!, {lr}
+    mov pc, lr
 
 
 @@@@
@@ -341,10 +416,12 @@ svc_set_motors_speed:
 @ out: r0 = system time
 @@@@
 svc_get_time:
+    stmfd sp!, {lr}
     @ Gets system time
     ldr r1, =SYS_TIME
     ldr r0, [r1]
 
+    ldmfd sp!, {lr}
     mov pc, lr
 
 @@@@
@@ -353,10 +430,13 @@ svc_get_time:
 @ out: --
 @@@@
 svc_set_time:
+    stmfd sp!, {lr}
+
     @ Sets system time
     ldr r1, =SYS_TIME
     str r0, [r1]
 
+    ldmfd sp!, {lr}
     mov pc, lr
 
 @@@@
@@ -364,10 +444,40 @@ svc_set_time:
 @      r1 = system time
 @
 @ out: r0 = -1: max number of active alarms is higher than MAX_ALARMS
-@           -2: passed systime is higher than current systime
+@           -2: passed systime is lower than current systime
 @            0: ok
 @@@@
 svc_set_alarm:
+    stmfd sp!, {r4, lr}
+    @ Already at maximum number of alarms
+    ldr r2, =ALARM_REGS
+    ldr r2, [r2]
+    cmp r2, #MAX_ALARMS
+    moveq r0, #-1
+    beq end_set_alarm
+
+    @ New systime lower than current systime
+    mov r4, r1          @ r4 <- systime
+    stmfd sp!, {r0-r3}
+    bl svc_get_time     @ Gets system time
+    cmp r4, r0
+    ldmfd sp!, {r0-r3}
+    movlt r0, #-2       @ if new systime < current systime
+    blt end_set_alarm   @ ends routine
+
+    @ All Fine
+                         @ r2 = Number of registered alarms
+    ldr r3, =ALARM_FUN   @ r3 = Array of functions
+    ldr r4, =ALARM_TIMES @ r4 = Array of alarm times
+
+    mul r2, r2, #4       @ r2 = Array displacement
+
+    str r0, [r3, r2]
+    str r1, [r4, r2]
+
+end_set_alarm:
+    ldmfd sp!, {r4, lr}
+    mov pc, lr
 
 
 IRQ_HANDLER:

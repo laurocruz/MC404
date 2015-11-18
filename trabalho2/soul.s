@@ -33,7 +33,7 @@ SET_GPT:
     .set GPT_IR,   0xC
     .set GPT_OCR1, 0x10
 
-    .set TIME_SZ 1000
+    .set TIME_SZ,  1000
 
     ldr r1, =GPT_BASE
 
@@ -152,46 +152,46 @@ SVC_HANDLER:
     .set MAX_ALARMS,    8
     .set MAX_CALLBACKS, 8
 
-    stmfd sp!, {r1-r13, lr}
+    stmfd sp!, {r4-r11, lr}
 
     @ Enter in supervisor mode
 
     cmp r7, #16         @ Compares r7 to determine the syscall
-    addne pc, pc #0xC   @ If the syscall is not the one being tested, jumps for the next
-    bleq read_sonar     @ If this is the right syscall, jumps to the syscall routine
+    addne pc, pc, #0xC   @ If the syscall is not the one being tested, jumps for the next
+    bleq svc_read_sonar     @ If this is the right syscall, jumps to the syscall routine
     b svc_end           @ Finishes the syscall
 
     cmp r7, #17
     addne pc, pc, #0xC
-    bleq register_proximity_callback
+    bleq svc_register_proximity_callback
     b svc_end
 
     cmp r7, #18
     addne pc, pc, #0xC
-    bleq set_motor_speed
+    bleq svc_set_motor_speed
     b svc_end
 
     cmp r7, #19
     addne pc, pc, #0xC
-    bleq set_motors_speed
+    bleq svc_set_motors_speed
     b svc_end
 
     cmp r7, #20
     addne pc, pc, #0xC
-    bleq get_time
+    bleq svc_get_time
     b svc_end
 
     cmp r7, #21
     addne pc, pc, #0xC
-    bleq set_time
+    bleq svc_set_time
     b svc_end
 
     cmp r7, #22
     addne pc, pc, #0x8
-    bleq set_alarm
+    bleq svc_set_alarm
 
 svc_end:
-    ldmfd sp!, {r1-r13, lr}
+    ldmfd sp!, {r4-r11, lr}
     movs pc, lr
 
 @@@@@@@@ Syscall functions @@@@@@@@
@@ -300,7 +300,7 @@ svc_register_proximity_callback:
     ldr r5, =CALLBACK_THRES @ r5 = Array of callback thresholds
     ldr r6, =CALLBACK_FUN   @ r6 = Array of callback functions
 
-    mul r3, r3, #4          @ Array displacement
+    mov r3, r3, lsl #2          @ Array displacement
 
     str r0, [r4, r3]        @ Stores the sensor id
     str r1, [r5, r3]        @ Stores the distance threshold
@@ -345,7 +345,7 @@ svc_set_motor_speed:
 set_motor0:
     @ Set controll array for GPIO_DR
     mov r1, r1, lsl #19
-    orr r1, r1, #1, lsl #18
+    orr r1, r1, #(1 << 18)
 
     @ Stores the array in GPIO_DR
     ldr r2, =GPIO_BASE
@@ -357,7 +357,7 @@ set_motor0:
 set_motor1:
     @ Set controll array for GPIO_DR
     mov r1, r1, lsl #26
-    orr r1, r1, #1, lsl #25
+    orr r1, r1, #(1 << 25)
 
     @ Stores the array in GPIO_DR
     ldr r2, =GPIO_BASE
@@ -396,8 +396,8 @@ svc_set_motors_speed:
     @ Makes the array for GPIO_DR in r1
     mov r1, r1, lsl #26
     orr r1, r1, r0, lsl #19
-    orr r1, r1, #1, #25
-    orr r1, r1, #1, #18
+    orr r1, r1, #(1 << 25)
+    orr r1, r1, #(1 << 18)
 
     @ Copies the array to GPIO_DR
     ldr r2, =GPIO_BASE
@@ -471,7 +471,7 @@ svc_set_alarm:
     ldr r3, =ALARM_FUN   @ r3 = Array of functions
     ldr r4, =ALARM_TIMES @ r4 = Array of alarm times
 
-    mul r2, r2, #4       @ r2 = Array displacement
+    mov r2, r2, lsl #2       @ r2 = Array displacement
 
     str r0, [r3, r2]
     str r1, [r4, r2]
@@ -483,8 +483,8 @@ end_set_alarm:
 
 IRQ_HANDLER:
     @ Constante para GPT_SR
-    .set GPT_SR, 0x53FA0008
-    .set DIST_INTERVAL 1000 @ Callback every ~ 5 ms
+    .set GPT_SR,        0x53FA0008
+    .set DIST_INTERVAL, 1000 @ Callback every ~ 5 ms
 
     stmfd sp!, {r4-r7, lr}
     ldr r1, =GPT_SR
@@ -520,7 +520,8 @@ loop_check_alarms:
     bne loop_check_alarms   @ goes to next alarm
 
     stmfd sp!, {r0-r3}      @ if r5 == systime
-    bl [r2], #4             @ run function
+    blx r2                  @ run function
+    add r2, r2, #4
     ldmfd sp!, {r0-r3}
 
 finish_alarms:
@@ -563,7 +564,8 @@ loop_make_callbacks:
     bgt loop_make_callbacks  @ Goes for the next sonar
 
                              @ if r0 <= r5
-    bl [r2], #4              @ Jumps to the function
+    blx r2                   @ Jumps to the function
+    add r2, r2, #4
     ldmfd sp!, {r0-r3}       @ Restores the values of r0-r3
 
     b loop_make_callbacks
@@ -624,10 +626,10 @@ SYS_TIME: .word 0x0
 ALARM_REGS: .word 0x0
 
 @ Array of System Times of the alarms
-ALARM_TIMES: .word 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0
+ALARM_TIMES: .word 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
 
 @ ARRAY of function pointers to be called in the alarm
-ALARM_FUN: .word 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0
+ALARM_FUN: .word 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 
 
 
 @ Callback timer
@@ -637,10 +639,10 @@ CALLBACK_TIME: .word 0x0
 CALLBACK_REGS: .word 0x0
 
 @ Array of sensor ids to be verified in the callback
-CALLBACK_IDS: .word 0x10 0x10 0x10 0x10 0x10 0x10 0x10 0x10
+CALLBACK_IDS: .word 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10
 
 @ Array of threshold distances
-CALLBACK_THRES: .word 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0
+CALLBACK_THRES: .word 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
 
 @ Array of function pointers to be called in the callback
-CALLBACK_FUN: .word 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x0
+CALLBACK_FUN: .word 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0

@@ -217,7 +217,10 @@ svc_read_sonar:
     @ Initially trigger = 0
     mov r0, r0, lsl #2
 
-    str r0, [r1, #GPIO_DR]
+    ldr r2, [r1, #GPIO_PSR]
+    bic r2, r2, #0x3E        @ Resets the sonar_mux ang trigger positions
+    orr r2, r2, r0           @ Makes the new DR array
+    str r2, [r1, #GPIO_DR]
 
     @@@@@@@@ delay 15 ms
     stmfd sp!, {r0-r3}
@@ -226,6 +229,8 @@ svc_read_sonar:
     ldmfd sp!, {r0-r3}
 
     @ Set trigger = 1
+    ldr r0, [r1, #GPIO_PSR]
+
     orr r0, r0, #0x2
     str r0, [r1, #GPIO_DR]
 
@@ -236,12 +241,12 @@ svc_read_sonar:
     ldmfd sp!, {r0-r3}
 
     @ Set trigger = 0
-    ldr r0, [r1, #GPIO_DR]
+    ldr r0, [r1, #GPIO_PSR]
     eor r0, r0, #0x2
     str r0, [r1, #GPIO_DR]
 
 check_flag:
-    ldr r0, [r1, #GPIO_DR]
+    ldr r0, [r1, #GPIO_PSR]
     mov r2, r0
     and r2, r2, #1
 
@@ -261,6 +266,7 @@ check_flag:
 flag_defined:
     @ Update r0 with the routine's return value
     mov r0, r0, lsr #6
+    and r0, r0, #0xFFF
 
 end_read_sonar:
     ldmfd sp!, {lr}
@@ -343,26 +349,26 @@ svc_set_motor_speed:
     b end_motor_speed
 
 set_motor0:
-    @ Set controll array for GPIO_DR
-    mov r1, r1, lsl #19
-    orr r1, r1, #(1 << 18)
-
     @ Stores the array in GPIO_DR
     ldr r2, =GPIO_BASE
 
-    str r1, [r2, #GPIO_DR]
+    ldr r0, [r2, #GPIO_PSR]
+
+    bic r0, r0, #(0xFE << 17) @ Resets the motor0_speed and motor0_write
+    orr r0, r0, r1, lsl #19   @ sets motor0_write and makes new DR array
+    str r0, [r2, #GPIO_DR]    @ Stores new array
 
     mov r0, #0
 
 set_motor1:
-    @ Set controll array for GPIO_DR
-    mov r1, r1, lsl #26
-    orr r1, r1, #(1 << 25)
-
     @ Stores the array in GPIO_DR
     ldr r2, =GPIO_BASE
 
-    str r1, [r2, #GPIO_DR]
+    ldr r0, [r2, #GPIO_PSR]
+
+    bic r0, r0, #(0xFE << 24) @ Resets the motor0_speed and motor0_write
+    orr r0, r0, r1, lsl #26   @ sets motor1_write and makes new DR array
+    str r0, [r2, #GPIO_DR]
 
     mov r0, #0
 
@@ -389,19 +395,21 @@ svc_set_motors_speed:
 
     @ Invalid motor1 speed
     cmp r1, #63
-    movhi r0, #-1
+    movhi r0, #-2
     bhi end_motors_speed
 
     @ All ok
+    ldr r2, =GPIO_BASE
+    ldr r3, [r2, #GPIO_PSR]
+
+    bic r3, r3, #(0xFFFC << 16) @ Resets the speeds and writes
+
     @ Makes the array for GPIO_DR in r1
     mov r1, r1, lsl #26
     orr r1, r1, r0, lsl #19
-    orr r1, r1, #(1 << 25)
-    orr r1, r1, #(1 << 18)
+    orr r3, r3, r1
 
-    @ Copies the array to GPIO_DR
-    ldr r2, =GPIO_BASE
-    str r1, [r2, #GPIO_DR]
+    str r3, [r2, #GPIO_DR]
 
     @ Sets the ok flag
     mov r0, #0
@@ -629,7 +637,7 @@ ALARM_REGS: .word 0x0
 ALARM_TIMES: .word 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
 
 @ ARRAY of function pointers to be called in the alarm
-ALARM_FUN: .word 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 
+ALARM_FUN: .word 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
 
 
 @ Callback timer

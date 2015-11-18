@@ -8,26 +8,16 @@
 .org 0x0
 .section .iv,"a"
 
-_start:
-
-
 interrupt_vector:
 
 @ 0x00
     b RESET_HANDLER
-.org 0x04
-    b UND_HANDLER
+
 .org 0x08
     b SVC_HANDLER
-.org 0x0C
-    b ABTI_HANDLER
-.org 0x10
-    b ABTD_HANDLER
+
 .org 0x18
     b IRQ_HANDLER
-.org 0x1C
-    b FIQ_HANDLER
-
 
 .org 0x100
 
@@ -35,6 +25,7 @@ interrupt_vector:
 
 @@@@@@@@@@@@@@@@@@@@@@@@@ SETTING HARDWARE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 SET_GPT:
+    stmfd sp!, {lr}
     @ Constantes para os enderecos de GPT
     .set GPT_BASE, 0x53FA0000
     .set GPT_CR,   0x0
@@ -63,10 +54,12 @@ SET_GPT:
     mov r0, #1
     str r0, [r1, #GPT_IR]
 
+    ldmfd sp!, {lr}
     mov pc, lr
 
 
 SET_TZIC:
+    stmfd sp!, {lr}
     @ Constantes para os enderecos do TZIC
     .set TZIC_BASE,             0x0FFFC000
     .set TZIC_INTCTRL,          0x0
@@ -106,10 +99,12 @@ SET_TZIC:
     mov	r0, #1
     str	r0, [r1, #TZIC_INTCTRL]
 
+    ldmfd sp!, {lr}
     mov pc, lr
 
 
 SET_GPIO:
+    stmfd sp!, {lr}
     @ Constants for the GPIO addresses
     .set GPIO_BASE, 0x53F84000
     .set GPIO_DR,   0x00
@@ -123,6 +118,9 @@ SET_GPIO:
     @ Set definitions of I/O of the GPIO pins in GDIR
     ldr r0, =0xFFFC003F @1111 1111 1111 1100 0000 0000 0011 1110
     str r0, [r1, #GPIO_GDIR]
+
+    ldmfd sp!, {lr}
+    mov pc, lr
 
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@ OPERATION MODES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -146,13 +144,15 @@ RESET_HANDLER:
     @instrucao msr - habilita interrupcoes
     msr  CPSR_c, #0x10       @ USER mode, IRQ/FIQ enabled
 
-infinite_loop:
-    b infinite_loop
+@infinite_loop:
+@    b infinite_loop
 
 
 SVC_HANDLER:
     .set MAX_ALARMS,    8
     .set MAX_CALLBACKS, 8
+
+    stmfd sp!, {r1-r13, lr}
 
     @ Enter in supervisor mode
 
@@ -187,10 +187,11 @@ SVC_HANDLER:
     b svc_end
 
     cmp r7, #22
-    addne pc, pc, #0xC
+    addne pc, pc, #0x8
     bleq set_alarm
 
 svc_end:
+    ldmfd sp!, {r1-r13, lr}
     movs pc, lr
 
 @@@@@@@@ Syscall functions @@@@@@@@

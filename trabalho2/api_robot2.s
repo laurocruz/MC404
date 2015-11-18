@@ -33,17 +33,17 @@ set_motor_speed:
 @ r1 <- speed motor1 (unsigned char)      ''
 @@@
 set_motors_speed:
-    stmfd sp!, {r7, lr} 
+    stmfd sp!, {r7, lr}
 
     mov r7, #19 @ calls syscall set_motors_speed
     svc 0x0
 
     ldmfd sp!, {r7, lr}
-    
+
     mov pc, lr
 
 @@@
-@ r0 <- sonar id (unsigned char) 
+@ r0 <- sonar id (unsigned char)
 @ r1 <- pointer to variable that will receive distance (unsigned short*)
 @@@
 read_sonar:
@@ -70,10 +70,10 @@ do_while:
     mov r0, r3
 
     stmfd sp!, {r2-r3}
-    bl read_sonar        @ calls the read_sonar function 
+    bl read_sonar        @ calls the read_sonar function
     ldmfd sp!, {r2-r3}   @ read_sonar stores the distance in the array
 
-    add r1, r1, 4        @ move forward in the array
+    add r1, r1, #4        @ move forward in the array
 
     add r3, r3, #1       @ increments r3 for the loop
     cmp r3, #16
@@ -130,7 +130,6 @@ set_time:
 
     mov r7, #21 @ calls syscal set_time
     svc 0x0
-   
+
     ldmfd sp!, {r7, lr}
     mov pc, lr
-

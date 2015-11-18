@@ -9,7 +9,6 @@
 .section .iv,"a"
 
 interrupt_vector:
-
 @ 0x00
     b RESET_HANDLER
 
@@ -126,6 +125,8 @@ SET_GPIO:
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@ OPERATION MODES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 RESET_HANDLER:
+    .set USER_start, 0x77802000
+
     @ Reset the SYS_TIME
     ldr r1, =SYS_TIME
     mov r0, #0
@@ -144,15 +145,15 @@ RESET_HANDLER:
     @instrucao msr - habilita interrupcoes
     msr  CPSR_c, #0x10       @ USER mode, IRQ/FIQ enabled
 
-@infinite_loop:
-@    b infinite_loop
-
+    @ Jumps to the start of the user function
+    ldr r0, =USER_start
+    bx r0
 
 SVC_HANDLER:
     .set MAX_ALARMS,    8
     .set MAX_CALLBACKS, 8
 
-    stmfd sp!, {r4-r11, lr}
+    stmfd sp!, {r1-r11, lr}
 
     @ Enter in supervisor mode
 
@@ -191,7 +192,7 @@ SVC_HANDLER:
     bleq svc_set_alarm
 
 svc_end:
-    ldmfd sp!, {r4-r11, lr}
+    ldmfd sp!, {r1-r11, lr}
     movs pc, lr
 
 @@@@@@@@ Syscall functions @@@@@@@@
@@ -496,7 +497,7 @@ IRQ_HANDLER:
     .set GPT_SR,        0x53FA0008
     .set DIST_INTERVAL, 1000 @ Callback every ~ 5 ms
 
-    stmfd sp!, {r4-r7, lr}
+    stmfd sp!, {r0-r11, lr}
     ldr r1, =GPT_SR
 
     @ Informa ao GPT que o processador está ciente de que ocorreu interrupcao
@@ -582,7 +583,7 @@ loop_make_callbacks:
 
 finish_callback:
 
-    ldmfd sp!, {r4-r7, lr}
+    ldmfd sp!, {r0-r7, lr}
 
     @ Retorna da funcao
     sub lr, lr, #4 @ Conserta o valor de lr que até o momento era lr = PC + 8

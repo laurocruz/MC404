@@ -1,7 +1,8 @@
 ASSEMBLER=arm-eabi-as
 LINKER=arm-eabi-ld
 SDMAKER=mksd.sh
-LDFLAGS=--section-start=.iv=0x778005e0 -Ttext=0x77800700 -Tdata=0x77801800 -e 0x778005e0
+SO_LDFLAGS=--section-start=.iv=0x778005e0 -Ttext=0x77800700 -Tdata=0x77801800 -e 0x778005e0
+USER_LDFLAGS=-Ttext=0x77802000
 SIMULATOR=armsim_player
 GDB=arm-eabi-gdb
 GCC=arm-eabi-gcc
@@ -10,12 +11,12 @@ sd: link assemble
 	${SDMAKER} --so soul --user robot_ctrl
 
 link: assemble
-	${LINKER} soul.o -o soul -g ${LDFLAGS}
-	${LINKER} loco.o bico.o -o robot_ctrl -Tdata=0x77802000
+	${LINKER} soul.o -o soul -g ${SO_LDFLAGS}
+	${LINKER} loco.o bico.o -o robot_ctrl ${USER_LDFLAGS}
 
 assemble: gcc bico.s soul.s
-	${ASSEMBLER} bico.s -o bico.o
 	${ASSEMBLER} soul.s -o soul.o -g
+	${ASSEMBLER} bico.s -o bico.o
 	${ASSEMBLER} loco.s -o loco.o
 
 gcc: loco.c

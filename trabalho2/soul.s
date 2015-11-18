@@ -266,7 +266,8 @@ check_flag:
 flag_defined:
     @ Update r0 with the routine's return value
     mov r0, r0, lsr #6
-    and r0, r0, #0xFFF
+    ldr r1, =0xFFF
+    and r0, r0, r1
 
 end_read_sonar:
     ldmfd sp!, {lr}
@@ -386,7 +387,7 @@ end_motor_speed:
 @            0: ok
 @@@@
 svc_set_motors_speed:
-    stmfd sp!, {lr}
+    stmfd sp!, {r4, lr}
 
     @ Invalid motor0 speed
     cmp r0, #63  @ Max speed
@@ -402,7 +403,8 @@ svc_set_motors_speed:
     ldr r2, =GPIO_BASE
     ldr r3, [r2, #GPIO_PSR]
 
-    bic r3, r3, #(0xFFFC << 16) @ Resets the speeds and writes
+    ldr r4, =0xFFFC
+    bic r3, r3, r4, lsl #16 @ Resets the speeds and writes
 
     @ Makes the array for GPIO_DR in r1
     mov r1, r1, lsl #26
@@ -415,7 +417,7 @@ svc_set_motors_speed:
     mov r0, #0
 
 end_motors_speed:
-    ldmfd sp!, {lr}
+    ldmfd sp!, {r4, lr}
     mov pc, lr
 
 

@@ -22,7 +22,7 @@ gcc: loco.c
 	${GCC} loco.c -S -o loco.s
 
 run: 
-	${SIMULATOR} --rom=/home/specg12-1/mc404/simulador/simulador_player/bin/dumboot.bin --sd=disk.img -g
+	${SIMULATOR} --rom=/home/specg12-1/mc404/simulador/simulador_player/bin/dumboot.bin --sd=disk.img --debug=core
 
 player:
 	player /home/specg12-1/mc404/simulador/simulador_player/worlds_mc404/simple.cfg 

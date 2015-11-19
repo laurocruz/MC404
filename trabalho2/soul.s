@@ -131,13 +131,25 @@ SET_GPIO:
     .set GPIO_GDIR, 0x04
     .set GPIO_PSR,  0x08
 
+    .set GDIR_INIT, 0xFFFC003E
+    .set DR_INIT,   0x02040000
+
     @ Starts the I/O controller
     @ R1 <- GPIO_BASE
     ldr r1, =GPIO_BASE
 
+    ldr r0, =GDIR_INIT
+
     @ Set definitions of I/O of the GPIO pins in GDIR
-    ldr r0, =0xFFFC003E @1111 1111 1111 1100 0000 0000 0011 1110
     str r0, [r1, #GPIO_GDIR]
+
+    @ Init the GPIO_DR
+    ldr r2, [r1, #GPIO_PSR]
+    bic r2, r2, r0
+    ldr r3, =DR_INIT
+    orr r2, r2, r3
+    str r2, [r1, #GPIO_DR]
+
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -375,11 +387,14 @@ set_motor0:
 
     ldr r0, [r2, #GPIO_PSR]
 
-    bic r0, r0, #(0xFE << 17) @ Resets the motor0_speed and motor0_write
-    orr r0, r0, r1, lsl #19   @ sets motor0_write and makes new DR array
-    str r0, [r2, #GPIO_DR]    @ Stores new array
+    @ sets new motor0_speed
+    bic r0, r0, #(0xFE << 17)
+    orr r0, r0, r1, lsl #19
+    str r0, [r2, #GPIO_DR]
 
     mov r0, #0
+
+    b end_motor_speed
 
 set_motor1:
     @ Stores the array in GPIO_DR
@@ -387,8 +402,9 @@ set_motor1:
 
     ldr r0, [r2, #GPIO_PSR]
 
-    bic r0, r0, #(0xFE << 24) @ Resets the motor0_speed and motor0_write
-    orr r0, r0, r1, lsl #26   @ sets motor1_write and makes new DR array
+    @ sets new motor1_speed
+    bic r0, r0, #(0xFE << 24)
+    orr r0, r0, r1, lsl #26
     str r0, [r2, #GPIO_DR]
 
     mov r0, #0

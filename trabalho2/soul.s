@@ -153,11 +153,12 @@ SET_GPIO:
     mov pc, lr
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+	ldr r0, =USER_start_program
+
     @instrucao msr - habilita interrupcoes
     msr  CPSR_c, #USR_MODE_INT_ENA    @ USER mode, IRQ/FIQ enabled
 
     @ Jumps to the start of the user function
-    ldr r0, =USER_start_program
     mov pc, r0
 
 SVC_HANDLER:

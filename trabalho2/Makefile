@@ -26,7 +26,7 @@ run:
 	${SIMULATOR} --rom=/home/specg12-1/mc404/simulador/simulador_player/bin/dumboot.bin --sd=disk.img --debug=core
 
 player:
-	sudo player /home/specg12-1/mc404/simulador/simulador_player/worlds_mc404/simple.cfg 
+	player /home/specg12-1/mc404/simulador/simulador_player/worlds_mc404/simple.cfg 
 
 gdb:
 	${GDB} ra156175

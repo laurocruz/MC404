@@ -22,9 +22,49 @@ interrupt_vector:
 
 .text
 
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@ OPERATION MODES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+RESET_HANDLER:
+    .set USER_start_program, 0x77802500
+    .set SYS_MODE_INT_DIS,   0xDF
+    .set IRQ_MODE_INT_DIS,   0xD2
+    .set SVC_MODE_INT_DIS,   0xD3
+    .set USR_MODE_INT_ENA,   0x10
+
+    mov r0, #0
+    @ Reset the SYS_TIME
+    ldr r1, =SYS_TIME
+    str r0, [r1]
+
+    @ Reset the alarms
+    ldr r1, =ALARM_REGS
+    str r0, [r1]
+
+    @ Reset the callbacks
+    ldr r1, =CALLBACK_REGS
+    str r0, [r1]
+
+    @Set interrupt table base address on coprocessor 15.
+    ldr r0, =interrupt_vector
+    mcr p15, 0, r0, c12, c0, 0
+
+    @@@ Set mode stacks
+
+    @ USER/SYSTEM
+    msr  CPSR_c, #SYS_MODE_INT_DIS  @ SYSTEM mode, IRQ/FIQ disabled
+    ldr sp, =USER_STACK
+
+    @ IRQ
+    msr CPSR_c, #IRQ_MODE_INT_DIS  @ IRQ mode, IRQ/FIQ disabled
+    ldr sp, =IRQ_STACK
+
+    @ Supervisor
+    msr CPSR_c, #SVC_MODE_INT_DIS  @ Supervisor mode, IRQ/FIQ disabled
+    ldr sp, =SVC_STACK
+
 @@@@@@@@@@@@@@@@@@@@@@@@@ SETTING HARDWARE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 SET_GPT:
-    stmfd sp!, {lr}
     @ Constantes para os enderecos de GPT
     .set GPT_BASE, 0x53FA0000
     .set GPT_CR,   0x0
@@ -53,12 +93,7 @@ SET_GPT:
     mov r0, #1
     str r0, [r1, #GPT_IR]
 
-    ldmfd sp!, {lr}
-    mov pc, lr
-
-
 SET_TZIC:
-    stmfd sp!, {lr}
     @ Constantes para os enderecos do TZIC
     .set TZIC_BASE,             0x0FFFC000
     .set TZIC_INTCTRL,          0x0
@@ -98,12 +133,8 @@ SET_TZIC:
     mov	r0, #1
     str	r0, [r1, #TZIC_INTCTRL]
 
-    ldmfd sp!, {lr}
-    mov pc, lr
-
 
 SET_GPIO:
-    stmfd sp!, {lr}
     @ Constants for the GPIO addresses
     .set GPIO_BASE, 0x53F84000
     .set GPIO_DR,   0x00
@@ -120,40 +151,20 @@ SET_GPIO:
 
     ldmfd sp!, {lr}
     mov pc, lr
-
-
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@ OPERATION MODES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-RESET_HANDLER:
-    .set USER_start, 0x77802000
-
-    @ Reset the SYS_TIME
-    ldr r1, =SYS_TIME
-    mov r0, #0
-    str r0,[r1]
-
-    @Set interrupt table base address on coprocessor 15.
-    ldr r0, =interrupt_vector
-    mcr p15, 0, r0, c12, c0, 0
-
-    stmfd sp!, {r0-r3}
-    bl SET_GPIO
-    bl SET_GPT
-    bl SET_TZIC
-    ldmfd sp!, {r0-r3}
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     @instrucao msr - habilita interrupcoes
-    msr  CPSR_c, #0x10       @ USER mode, IRQ/FIQ enabled
+    msr  CPSR_c, #USR_MODE_INT_ENA    @ USER mode, IRQ/FIQ enabled
 
     @ Jumps to the start of the user function
-    ldr r0, =USER_start
-    bx r0
+    ldr r0, =USER_start_program
+    mov pc, r0
 
 SVC_HANDLER:
     .set MAX_ALARMS,    8
     .set MAX_CALLBACKS, 8
 
-    stmfd sp!, {r1-r11, lr}
+    stmfd sp!, {r1-r12, lr}
 
     @ Enter in supervisor mode
 
@@ -192,7 +203,7 @@ SVC_HANDLER:
     bleq svc_set_alarm
 
 svc_end:
-    ldmfd sp!, {r1-r11, lr}
+    ldmfd sp!, {r1-r12, lr}
     movs pc, lr
 
 @@@@@@@@ Syscall functions @@@@@@@@
@@ -497,7 +508,7 @@ IRQ_HANDLER:
     .set GPT_SR,        0x53FA0008
     .set DIST_INTERVAL, 1000 @ Callback every ~ 5 ms
 
-    stmfd sp!, {r0-r11, lr}
+    stmfd sp!, {r0-r12, lr}
     ldr r1, =GPT_SR
 
     @ Informa ao GPT que o processador está ciente de que ocorreu interrupcao
@@ -583,7 +594,7 @@ loop_make_callbacks:
 
 finish_callback:
 
-    ldmfd sp!, {r0-r7, lr}
+    ldmfd sp!, {r0-r12, lr}
 
     @ Retorna da funcao
     sub lr, lr, #4 @ Conserta o valor de lr que até o momento era lr = PC + 8
@@ -629,6 +640,9 @@ loop_delay:
 
 @@@@@@@@@@@@@@@@@@@@@@@ DATA @@@@@@@@@@@@@@@@@@@@@
 .data
+
+.set STACK_SIZE, 0xFF
+
 @ System timer
 SYS_TIME: .word 0x0
 
@@ -637,10 +651,10 @@ SYS_TIME: .word 0x0
 ALARM_REGS: .word 0x0
 
 @ Array of System Times of the alarms
-ALARM_TIMES: .word 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+ALARM_TIMES: .fill MAX_CALLBACKS, 4, 0x0
 
 @ ARRAY of function pointers to be called in the alarm
-ALARM_FUN: .word 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+ALARM_FUN: .fill MAX_CALLBACKS, 4, 0x0
 
 
 @ Callback timer
@@ -650,10 +664,22 @@ CALLBACK_TIME: .word 0x0
 CALLBACK_REGS: .word 0x0
 
 @ Array of sensor ids to be verified in the callback
-CALLBACK_IDS: .word 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10
+CALLBACK_IDS: .fill MAX_CALLBACKS, 4, 0x10
 
 @ Array of threshold distances
-CALLBACK_THRES: .word 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+CALLBACK_THRES: .fill MAX_CALLBACKS, 4, 0x0
 
 @ Array of function pointers to be called in the callback
-CALLBACK_FUN: .word 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+CALLBACK_FUN: .fill MAX_CALLBACKS, 4, 0x0
+
+@ Stack for the USER mode
+.fill STACK_SIZE, 4, 0x0
+USER_STACK:
+
+@ Stack for the IRQ mode
+.fill STACK_SIZE, 4, 0x0
+IRQ_STACK:
+
+@ Stack for the SUPERVISOR mode
+.fill STACK_SIZE, 4, 0x0
+SVC_STACK:

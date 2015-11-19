@@ -2,7 +2,7 @@ ASSEMBLER=arm-eabi-as
 LINKER=arm-eabi-ld
 SDMAKER=mksd.sh
 SO_LDFLAGS=--section-start=.iv=0x778005e0 -Ttext=0x77800700 -Tdata=0x77801800 -e 0x778005e0
-USER_LDFLAGS=-Ttext=0x77802000
+USER_LDFLAGS=-Ttext=0x77802500
 SIMULATOR=armsim_player
 GDB=arm-eabi-gdb
 GCC=arm-eabi-gcc
@@ -26,7 +26,7 @@ run:
 	${SIMULATOR} --rom=/home/specg12-1/mc404/simulador/simulador_player/bin/dumboot.bin --sd=disk.img --debug=core
 
 player:
-	player /home/specg12-1/mc404/simulador/simulador_player/worlds_mc404/simple.cfg 
+	sudo player /home/specg12-1/mc404/simulador/simulador_player/worlds_mc404/simple.cfg 
 
 gdb:
 	${GDB} ra156175

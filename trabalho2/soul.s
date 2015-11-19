@@ -169,38 +169,45 @@ SVC_HANDLER:
 
     @ Enter in supervisor mode
 
-    cmp r7, #16         @ Compares r7 to determine the syscall
-    addne pc, pc, #0xC   @ If the syscall is not the one being tested, jumps for the next
+svc_16:
+    cmp r7, #16             @ Compares r7 to determine the syscall
+    bne svc_17              @ If the syscall is not the one being tested, jumps for the next
     bleq svc_read_sonar     @ If this is the right syscall, jumps to the syscall routine
-    b svc_end           @ Finishes the syscall
+    b svc_end               @ Finishes the syscall
 
+svc_17:
     cmp r7, #17
-    addne pc, pc, #0xC
+    bne svc_18
     bleq svc_register_proximity_callback
     b svc_end
 
+svc_18:
     cmp r7, #18
-    addne pc, pc, #0xC
+    bne svc_19
     bleq svc_set_motor_speed
     b svc_end
 
+svc_19:
     cmp r7, #19
-    addne pc, pc, #0xC
+    bne svc_20
     bleq svc_set_motors_speed
     b svc_end
 
+svc_20:
     cmp r7, #20
-    addne pc, pc, #0xC
+    bne svc_21
     bleq svc_get_time
     b svc_end
 
+svc_21:
     cmp r7, #21
-    addne pc, pc, #0xC
+    bne svc_22
     bleq svc_set_time
     b svc_end
 
+svc_22:
     cmp r7, #22
-    addne pc, pc, #0x8
+    bne svc_end
     bleq svc_set_alarm
 
 svc_end:

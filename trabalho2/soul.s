@@ -33,6 +33,10 @@ RESET_HANDLER:
     .set USR_MODE_INT_ENA,   0x10
     .set SVC_MODE_INT_ENA,   0x13
 
+    @Set interrupt table base address on coprocessor 15.
+    ldr r0, =interrupt_vector
+    mcr p15, 0, r0, c12, c0, 0
+
     @ Enters in Supervisor
     msr CPSR_c, #SVC_MODE_INT_DIS  @ Supervisor mode, IRQ/FIQ disabled
 
@@ -49,11 +53,6 @@ RESET_HANDLER:
     ldr r1, =CALLBACK_REGS
     str r0, [r1]
 
-    @Set interrupt table base address on coprocessor 15.
-    ldr r0, =interrupt_vector
-    mcr p15, 0, r0, c12, c0, 0
-
-
 @@@@@@@@@@@@@@@@@@@@@@@@@ SETTING HARDWARE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 SET_GPT:
     @ Constantes para os enderecos de GPT
@@ -63,7 +62,7 @@ SET_GPT:
     .set GPT_IR,   0xC
     .set GPT_OCR1, 0x10
 
-    .set TIME_SZ,  1
+    .set TIME_SZ,  10
 
     ldr r1, =GPT_BASE
 
@@ -177,6 +176,8 @@ SET_GPIO:
 SVC_HANDLER:
     .set MAX_ALARMS,    8
     .set MAX_CALLBACKS, 8
+
+    msr CPSR_c, #SVC_MODE_INT_ENA
 
     stmfd sp!, {r1-r12, lr}
 

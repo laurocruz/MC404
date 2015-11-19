@@ -1,19 +1,14 @@
 #include "bico.h"
 
 void _start(void) {
-//    unsigned short a, b;
-    int i;
-/*
-    while(1) {
-        set_motors_speed(63, 63);
-        for (i = 0; i < 10000000; i++); 
-        set_motor_speed(0, 0);
-        for (i = 0; i < 10000000; i++); 
-        set_motors_speed(63, 0);
-        for (i = 0; i < 10000000; i++); 
+    unsigned short a, b;
+    unsigned int i;
 
+    while (1) {
+        set_motors_speed(40, 40);
+        for (i = 0; i < 100000; i++);
+        read_sonar(3, &a);
+        read_sonar(4, &b);
     }
-    */
-    while(1) set_motor_speed(0, 40);
 
 }

@@ -31,6 +31,7 @@ RESET_HANDLER:
     .set IRQ_MODE_INT_DIS,   0xD2
     .set SVC_MODE_INT_DIS,   0xD3
     .set USR_MODE_INT_ENA,   0x10
+    .set SVC_MODE_INT_ENA,   0x13
 
     @ Enters in Supervisor
     msr CPSR_c, #SVC_MODE_INT_DIS  @ Supervisor mode, IRQ/FIQ disabled
@@ -62,7 +63,7 @@ SET_GPT:
     .set GPT_IR,   0xC
     .set GPT_OCR1, 0x10
 
-    .set TIME_SZ,  1000
+    .set TIME_SZ,  1
 
     ldr r1, =GPT_BASE
 
@@ -246,12 +247,10 @@ svc_read_sonar:
     ldr r1, =GPIO_BASE
 
     @ Set sonar to be read
-    @ Initially trigger = 0
-    mov r0, r0, lsl #2
 
     ldr r2, [r1, #GPIO_PSR]
     bic r2, r2, #0x3E        @ Resets the sonar_mux ang trigger positions
-    orr r2, r2, r0           @ Makes the new DR array
+    orr r2, r2, r0, lsl #2           @ Makes the new DR array
     str r2, [r1, #GPIO_DR]
 
     @@@@@@@@ delay 15 ms
@@ -382,13 +381,15 @@ svc_set_motor_speed:
     b end_motor_speed
 
 set_motor0:
+    .set BIT_CLEAR_MOTOR_0, 0x01FC0000
     @ Stores the array in GPIO_DR
     ldr r2, =GPIO_BASE
 
     ldr r0, [r2, #GPIO_PSR]
 
     @ sets new motor0_speed
-    bic r0, r0, #(0xFE << 17)
+    ldr r3, =BIT_CLEAR_MOTOR_0
+    bic r0, r0, r3
     orr r0, r0, r1, lsl #19
     str r0, [r2, #GPIO_DR]
 
@@ -397,13 +398,15 @@ set_motor0:
     b end_motor_speed
 
 set_motor1:
+    .set BIT_CLEAR_MOTOR_1, 0xFE000000
     @ Stores the array in GPIO_DR
     ldr r2, =GPIO_BASE
 
     ldr r0, [r2, #GPIO_PSR]
 
     @ sets new motor1_speed
-    bic r0, r0, #(0xFE << 24)
+    ldr r3, =BIT_CLEAR_MOTOR_1
+    bic r0, r0, r3
     orr r0, r0, r1, lsl #26
     str r0, [r2, #GPIO_DR]
 
@@ -661,15 +664,13 @@ loop_delay:
 
     mov pc, lr
 
-
 @@@@@@@@@@@@@@@@@@@@@@@ DATA @@@@@@@@@@@@@@@@@@@@@
 .data
-
-.set STACK_SIZE, 0xFF
 
 @ System timer
 SYS_TIME: .word 0x0
 
+.set STACK_SIZE, 0xFF
 
 @ Number of registered alarms
 ALARM_REGS: .word 0x0

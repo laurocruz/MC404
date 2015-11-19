@@ -32,6 +32,9 @@ RESET_HANDLER:
     .set SVC_MODE_INT_DIS,   0xD3
     .set USR_MODE_INT_ENA,   0x10
 
+    @ Enters in Supervisor
+    msr CPSR_c, #SVC_MODE_INT_DIS  @ Supervisor mode, IRQ/FIQ disabled
+
     mov r0, #0
     @ Reset the SYS_TIME
     ldr r1, =SYS_TIME
@@ -49,19 +52,6 @@ RESET_HANDLER:
     ldr r0, =interrupt_vector
     mcr p15, 0, r0, c12, c0, 0
 
-    @@@ Set mode stacks
-
-    @ USER/SYSTEM
-    msr  CPSR_c, #SYS_MODE_INT_DIS  @ SYSTEM mode, IRQ/FIQ disabled
-    ldr sp, =USER_STACK
-
-    @ IRQ
-    msr CPSR_c, #IRQ_MODE_INT_DIS  @ IRQ mode, IRQ/FIQ disabled
-    ldr sp, =IRQ_STACK
-
-    @ Supervisor
-    msr CPSR_c, #SVC_MODE_INT_DIS  @ Supervisor mode, IRQ/FIQ disabled
-    ldr sp, =SVC_STACK
 
 @@@@@@@@@@@@@@@@@@@@@@@@@ SETTING HARDWARE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 SET_GPT:
@@ -146,20 +136,30 @@ SET_GPIO:
     ldr r1, =GPIO_BASE
 
     @ Set definitions of I/O of the GPIO pins in GDIR
-    ldr r0, =0xFFFC003F @1111 1111 1111 1100 0000 0000 0011 1110
+    ldr r0, =0xFFFC003E @1111 1111 1111 1100 0000 0000 0011 1110
     str r0, [r1, #GPIO_GDIR]
 
-    ldmfd sp!, {lr}
-    mov pc, lr
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-	ldr r0, =USER_start_program
+    @@@ Set mode stacks
 
+    @ SVC
+    ldr sp, =SVC_STACK
+
+    @ USER/SYSTEM
+    msr  CPSR_c, #SYS_MODE_INT_DIS  @ SYSTEM mode, IRQ/FIQ disabled
+    ldr sp, =USER_STACK
+
+    @ IRQ
+    msr CPSR_c, #IRQ_MODE_INT_DIS  @ IRQ mode, IRQ/FIQ disabled
+    ldr sp, =IRQ_STACK
+
+    @@@ Changes to user mode and jumps to user code
     @instrucao msr - habilita interrupcoes
     msr  CPSR_c, #USR_MODE_INT_ENA    @ USER mode, IRQ/FIQ enabled
 
     @ Jumps to the start of the user function
-    mov pc, r0
+    ldr pc, =USER_start_program
 
 SVC_HANDLER:
     .set MAX_ALARMS,    8

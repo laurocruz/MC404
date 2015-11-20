@@ -32,6 +32,7 @@ RESET_HANDLER:
     .set SVC_MODE_INT_DIS,   0xD3
     .set USR_MODE_INT_ENA,   0x10
     .set SVC_MODE_INT_ENA,   0x13
+    .set IRQ_ENABLE,         0x80
 
     @Set interrupt table base address on coprocessor 15.
     ldr r0, =interrupt_vector
@@ -62,7 +63,7 @@ SET_GPT:
     .set GPT_IR,   0xC
     .set GPT_OCR1, 0x10
 
-    .set TIME_SZ,  10
+    .set TIME_SZ,  100
 
     ldr r1, =GPT_BASE
 
@@ -144,7 +145,7 @@ SET_GPIO:
     str r0, [r1, #GPIO_GDIR]
 
     @ Init the GPIO_DR
-    ldr r2, [r1, #GPIO_PSR]
+    ldr r2, [r1, #GPIO_DR]
     bic r2, r2, r0
     ldr r3, =DR_INIT
     orr r2, r2, r3
@@ -176,8 +177,6 @@ SET_GPIO:
 SVC_HANDLER:
     .set MAX_ALARMS,    8
     .set MAX_CALLBACKS, 8
-
-    msr CPSR_c, #SVC_MODE_INT_ENA
 
     stmfd sp!, {r1-r12, lr}
 
@@ -249,7 +248,7 @@ svc_read_sonar:
 
     @ Set sonar to be read
 
-    ldr r2, [r1, #GPIO_PSR]
+    ldr r2, [r1, #GPIO_DR]
     bic r2, r2, #0x3E        @ Resets the sonar_mux ang trigger positions
     orr r2, r2, r0, lsl #2           @ Makes the new DR array
     str r2, [r1, #GPIO_DR]
@@ -261,7 +260,7 @@ svc_read_sonar:
     ldmfd sp!, {r0-r3}
 
     @ Set trigger = 1
-    ldr r0, [r1, #GPIO_PSR]
+    ldr r0, [r1, #GPIO_DR]
 
     orr r0, r0, #0x2
     str r0, [r1, #GPIO_DR]
@@ -273,12 +272,12 @@ svc_read_sonar:
     ldmfd sp!, {r0-r3}
 
     @ Set trigger = 0
-    ldr r0, [r1, #GPIO_PSR]
+    ldr r0, [r1, #GPIO_DR]
     eor r0, r0, #0x2
     str r0, [r1, #GPIO_DR]
 
 check_flag:
-    ldr r0, [r1, #GPIO_PSR]
+    ldr r0, [r1, #GPIO_DR]
     mov r2, r0
     and r2, r2, #1
 
@@ -386,7 +385,7 @@ set_motor0:
     @ Stores the array in GPIO_DR
     ldr r2, =GPIO_BASE
 
-    ldr r0, [r2, #GPIO_PSR]
+    ldr r0, [r2, #GPIO_DR]
 
     @ sets new motor0_speed
     ldr r3, =BIT_CLEAR_MOTOR_0
@@ -403,7 +402,7 @@ set_motor1:
     @ Stores the array in GPIO_DR
     ldr r2, =GPIO_BASE
 
-    ldr r0, [r2, #GPIO_PSR]
+    ldr r0, [r2, #GPIO_DR]
 
     @ sets new motor1_speed
     ldr r3, =BIT_CLEAR_MOTOR_1
@@ -441,7 +440,7 @@ svc_set_motors_speed:
 
     @ All ok
     ldr r2, =GPIO_BASE
-    ldr r3, [r2, #GPIO_PSR]
+    ldr r3, [r2, #GPIO_DR]
 
     ldr r4, =0xFFFC
     bic r3, r3, r4, lsl #16 @ Resets the speeds and writes
@@ -639,11 +638,11 @@ delay:
 
     @ number of systimes to time delay (ms) (based on a clock of 200 MHz)
     cmp r0, #15
-    ldreq r3, =3000
+    ldreq r3, =30000
     beq end_define_delay
 
     cmp r0, #10
-    ldreq r3, =2000
+    ldreq r3, =20000
 
 end_define_delay:
     @ gets initial value of systime

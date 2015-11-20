@@ -634,33 +634,27 @@ finish_callback:
 @ in: r0 = time delay (ms)
 @@@
 delay:
-    stmfd sp!, {r4, lr}
+    stmfd sp!, {lr}
 
-    @ number of systimes to time delay (ms) (based on a clock of 200 MHz)
+    @ number of loops to time delay (ms) (based on a clock of 107 KHz)
     cmp r0, #15
-    ldreq r3, =30000
+    ldreq r3, =1700
     beq end_define_delay
 
     cmp r0, #10
-    ldreq r3, =20000
+    ldreq r3, =1100
 
 end_define_delay:
-    @ gets initial value of systime
-    ldr r4, =SYS_TIME
-    ldr r0, [r4]
+    mov r0, #0
 
 loop_delay:
-    @ new value of systime
-    ldr r1, [r4]
+    add r0, r0, #1
 
-    @ difference of systime
-    sub r2, r1, r0
-
-    @ if r2 <= r3, makes another loop
-    cmp r2, r3
+    @ if r0 <= r3, makes another loop
+    cmp r0, r3
     bls loop_delay
 
-    ldmfd sp!, {r4, lr}
+    ldmfd sp!, {lr}
 
     mov pc, lr
 

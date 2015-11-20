@@ -52,7 +52,7 @@ read_sonar:
     mov r7, #16 @ calls syscall read_sonar
     svc 0x0
 
-    str r0, [r1] @ stores the distance read in the variable in the memory
+    strh r0, [r1] @ stores the distance read in the variable in the memory
 
     ldmfd sp!, {r7, lr}
     mov pc, lr

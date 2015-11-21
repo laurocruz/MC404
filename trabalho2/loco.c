@@ -3,31 +3,56 @@
 
 #include "bico.h" /* Robot control API */
 
+void force_turn(void);
+void ronda();
+void forward();
+void turn90();
 void segue_parede(void);
 void busca_parede_mode(void);
 void segue_parede_mode(void);
 void turn_left(void);
 void spin(void);
 
+unsigned int turn;
+
 /* main function */
 void _start(void) {
-    
-    register_proximity_callback(3, 900, turn_left);
-    register_proximity_callback(4, 900, turn_left);
 
-    while (1) {
-        set_motors_speed(40,40);
-    }
+    ronda();
+    while(1);
 
 }
 
-void ronda(void) {
-
-    
-
+void force_turn(void) {
+    set_time(turn - 1);
 }
 
+void ronda() {
+    register_proximity_callback(3, 1000, force_turn);
+    register_proximity_callback(4, 1000, force_turn);
 
+    forward();
+}
+
+void forward(void) {
+    static unsigned int i = 40;
+
+    set_motors_speed(40, 40);
+
+    turn = get_time() + i;
+
+    add_alarm(turn90, turn);
+
+    i = (i % 2000) + 40;
+}
+
+void turn90() {
+    unsigned int i;
+    set_motor_speed(0,0);
+
+    add_alarm(forward, get_time() + 40);
+
+}
 
 void segue_parede(void) {
     busca_parede_mode();

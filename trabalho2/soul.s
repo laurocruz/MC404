@@ -188,6 +188,8 @@ SVC_HANDLER:
 
     @ Enter in supervisor mode
 
+    @msr CPSR_c, #SVC_MODE_INT_ENA
+
 svc_16:
     cmp r7, #16             @ Compares r7 to determine the syscall
     bne svc_17              @ If the syscall is not the one being tested, jumps for the next
@@ -556,7 +558,7 @@ end_set_alarm:
 IRQ_HANDLER:
     @ Constante para GPT_SR
     .set GPT_SR,        0x53FA0008
-    .set DIST_INTERVAL, 100  @ Callback every ~ 100 ms
+    .set DIST_INTERVAL, 40  @ Callback every ~ 100 ms
 
     stmfd sp!, {r0-r12, lr}
     ldr r1, =GPT_SR
@@ -597,10 +599,7 @@ loop_check_alarms:
 
     sub r8, r8, #1          @ New quantity of alarms
 
-    ldr r7, [r2]
-    stmfd sp!, {r0-r3}      @ if r5 == systime
-    blx r7                  @ run function
-    ldmfd sp!, {r0-r3}
+    str r8, [r9]
 
     stmfd sp!, {r0-r3}
     mov r0, r1           @ r0 <- array position of the time being called
@@ -609,10 +608,14 @@ loop_check_alarms:
     bl right_shift_array
     ldmfd sp!, {r0-r3}
 
+    ldr r7, [r2]
+    stmfd sp!, {r0-r3}      @ if r5 == systime
+    blx r7                  @ run function
+    ldmfd sp!, {r0-r3}
+
     b loop_check_alarms
 
 finish_alarms:
-    str r8, [r9]        @ Updates number of registered alarms
 
     @ Incrementa CALLBACK_TIME
     ldr r1, =CALLBACK_TIME
@@ -764,10 +767,6 @@ ALARM_TIMES: .fill MAX_ALARMS, 4, 0x0
 
 @ ARRAY of function pointers to be called in the alarm
 ALARM_FUN: .fill MAX_ALARMS, 4, 0x0
-
-@ Array of flags to determine if the alarm is active or not
-ALARM_EN: .fill MAX_ALARMS, 4, 0x0
-
 
 
 @ Array of sensor ids to be verified in the callback

@@ -317,22 +317,21 @@ svc_register_proximity_callback:
     stmfd sp!, {r4-r6, lr}
 
     @ Already at maximum number of callbacks
-    ldr r3, =CALLBACK_REGS
-    ldr r3, [r3]
+    ldr r4, =CALLBACK_REGS
+    ldr r3, [r4]
     cmp r3, #MAX_CALLBACKS
     moveq r0, #-1
     beq end_rpc
 
     @ Invalid sonar id
     cmp r0, #15
-    movgt r0, #-2
-    bgt end_rpc
-
-    cmp r0, #0
-    movlt r0, #-2
-    blt end_rpc
+    movhi r0, #-2
+    bhi end_rpc
 
     @ No errors
+    add r5, r3, #1  @ Increments number of registers
+    str r5, [r4]
+
                             @ r3 = Number os callbacks registered
     ldr r4, =CALLBACK_IDS   @ r4 = Array of callback ids
     ldr r5, =CALLBACK_THRES @ r5 = Array of callback thresholds
@@ -533,7 +532,7 @@ end_set_alarm:
 IRQ_HANDLER:
     @ Constante para GPT_SR
     .set GPT_SR,        0x53FA0008
-    .set DIST_INTERVAL, 1000 @ Callback every ~ 5 ms
+    .set DIST_INTERVAL, 100  @ Callback every ~ 100 ms
 
     stmfd sp!, {r0-r12, lr}
     ldr r1, =GPT_SR
@@ -570,8 +569,10 @@ loop_check_alarms:
 
     stmfd sp!, {r0-r3}      @ if r5 == systime
     blx r2                  @ run function
-    add r2, r2, #4
     ldmfd sp!, {r0-r3}
+    add r2, r2, #4
+
+    b loop_check_alarms
 
 finish_alarms:
 
@@ -581,7 +582,7 @@ finish_alarms:
 
     add r0, r0, #1
 
-    ldr r2, =DIST_INTERVAL  @ if number of cycles != 1000 systimes
+    ldr r2, =DIST_INTERVAL  @ if number of cycles != DIST_INTERVAL systimes
     cmp r0, r2              @ continue with the counting
     strne r0, [r1]
     bne finish_callback
@@ -593,34 +594,36 @@ finish_alarms:
     ldr r4, =CALLBACK_REGS  @ Number of registered callbacks
     ldr r4, [r4]
 
-    ldr r1, =CALLBACK_IDS   @ Array of sensor ids
+    ldr r1, =CALLBACK_IDS   @ Array of sonar ids
     ldr r2, =CALLBACK_FUN   @ Array of functions
     ldr r3, =CALLBACK_THRES @ Array of threshold distances
 
+    mov r6, #0  @ Sets counter
 loop_make_callbacks:
-    add r0, r0, #1
-    cmp r0, r4
+    add r6, r6, #1
+    cmp r6, r4
     bgt finish_callback
 
-    stmfd sp!, {r0-r3}
-    ldr r0, [r1], #4
-    bl svc_read_sonar          @ read the distance from the sonar stored in the array
+    ldr r0, [r1], #4       @ Gets the value of the sonar
+    stmfd sp!, {r1-r3}
+    bl svc_read_sonar      @ Reads the sonar (r0 <- distance)
+    ldmfd sp!, {r1-r3}
+
     ldr r5, [r3], #4       @ r5 <- threshold distance
 
-    cmp r0, r5               @ if r0 > r5
-    ldmgtfd sp!, {r0-r3}     @ Loads r0-r3 from the stack
-    addgt r2, r2, #4         @ Skips function
-    bgt loop_make_callbacks  @ Goes for the next sonar
+    cmp r0, r5             @ if r0 > r5
+    bgt end_callback_loop  @ Tests next callback
 
-                             @ if r0 <= r5
-    blx r2                   @ Jumps to the function
+    ldr r7, [r2]
+    stmfd sp!, {r0-r3}     @ if r0 <= r5
+    blx r7                 @ Jumps to user function
+    ldmfd sp!, {r0-r3}
+
+end_callback_loop:
     add r2, r2, #4
-    ldmfd sp!, {r0-r3}       @ Restores the values of r0-r3
-
     b loop_make_callbacks
 
 finish_callback:
-
     ldmfd sp!, {r0-r12, lr}
 
     @ Retorna da funcao
@@ -660,14 +663,21 @@ loop_delay:
 
 @@@@@@@@@@@@@@@@@@@@@@@ DATA @@@@@@@@@@@@@@@@@@@@@
 .data
+.set STACK_SIZE, 0xFF
 
 @ System timer
 SYS_TIME: .word 0x0
 
-.set STACK_SIZE, 0xFF
+@ Callback timer
+CALLBACK_TIME: .word 0x0
+
+@ Number of registered callbacks
+CALLBACK_REGS: .word 0x0
 
 @ Number of registered alarms
 ALARM_REGS: .word 0x0
+
+
 
 @ Array of System Times of the alarms
 ALARM_TIMES: .fill MAX_CALLBACKS, 4, 0x0
@@ -676,11 +686,6 @@ ALARM_TIMES: .fill MAX_CALLBACKS, 4, 0x0
 ALARM_FUN: .fill MAX_CALLBACKS, 4, 0x0
 
 
-@ Callback timer
-CALLBACK_TIME: .word 0x0
-
-@ Number of registered callbacks
-CALLBACK_REGS: .word 0x0
 
 @ Array of sensor ids to be verified in the callback
 CALLBACK_IDS: .fill MAX_CALLBACKS, 4, 0x10
@@ -690,6 +695,8 @@ CALLBACK_THRES: .fill MAX_CALLBACKS, 4, 0x0
 
 @ Array of function pointers to be called in the callback
 CALLBACK_FUN: .fill MAX_CALLBACKS, 4, 0x0
+
+
 
 @ Stack for the USER mode
 .fill STACK_SIZE, 4, 0x0

@@ -8,6 +8,8 @@
 .org 0x0
 .section .iv,"a"
 
+@ ----------------- Interrupyion vector -------------------- @
+
 interrupt_vector:
 @ 0x00
     b RESET_HANDLER
@@ -23,7 +25,7 @@ interrupt_vector:
 .text
 
 
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@ OPERATION MODES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ ---------------------------------- Reset mode ------------------------------------- @
 
 RESET_HANDLER:
     .set USER_start_program, 0x77802500
@@ -54,7 +56,7 @@ RESET_HANDLER:
     ldr r1, =CALLBACK_REGS
     str r0, [r1]
 
-@@@@@@@@@@@@@@@@@@@@@@@@@ SETTING HARDWARE @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ -------------- Setting GPT ---------------@
 SET_GPT:
     @ Constantes para os enderecos de GPT
     .set GPT_BASE, 0x53FA0000
@@ -84,6 +86,8 @@ SET_GPT:
     mov r0, #1
     str r0, [r1, #GPT_IR]
 
+
+@ ------------ Setting TZIC ------------------ @
 SET_TZIC:
     @ Constantes para os enderecos do TZIC
     .set TZIC_BASE,             0x0FFFC000
@@ -125,6 +129,7 @@ SET_TZIC:
     str	r0, [r1, #TZIC_INTCTRL]
 
 
+@ ----------------- Setting GPIO ------------------- @
 SET_GPIO:
     @ Constants for the GPIO addresses
     .set GPIO_BASE, 0x53F84000
@@ -151,10 +156,7 @@ SET_GPIO:
     orr r2, r2, r3
     str r2, [r1, #GPIO_DR]
 
-
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-    @@@ Set mode stacks
+@ ----------------- Setting stacks for the processor modes ---------------- @
 
     @ SVC
     ldr sp, =SVC_STACK
@@ -173,6 +175,10 @@ SET_GPIO:
 
     @ Jumps to the start of the user function
     ldr pc, =USER_start_program
+
+
+
+@ ----------------------------------- Handler of the Syscalls ----------------------------- @
 
 SVC_HANDLER:
     .set MAX_ALARMS,    8
@@ -227,13 +233,14 @@ svc_end:
     ldmfd sp!, {r1-r12, lr}
     movs pc, lr
 
-@@@@@@@@ Syscall functions @@@@@@@@
+@ ---------- Syscall functions ----------- @
 
-@@@
-@ in: r0 = sonar id
-@ out : r0 = distance value
-@          = -1 for invalid sonar id
-@@@
+@ ----- Read Sonar (r7 = 16) --------@
+@------------------------------------@
+@ in: r0 = sonar id                  @
+@ out : r0 = distance value          @
+@          = -1 for invalid sonar id @
+@------------------------------------@
 svc_read_sonar:
     stmfd sp!, {lr}
 
@@ -304,15 +311,18 @@ end_read_sonar:
     ldmfd sp!, {lr}
     mov pc, lr
 
-@@@@
-@ in:  r0 = sonar id
-@      r1 = distance limit
-@      r2 = pointer for the function to be called in case the alarm rings
-@
-@ out: r0 = -1: number of max callbacks active in the system is higher than MAX_CALLBACKS
-@           -2: invalid sonar id
-@            0: standard
-@@@@
+
+
+@ ------------------------- Register proximity callback (r7 = 17) ------------------------@
+@-----------------------------------------------------------------------------------------@
+@ in:  r0 = sonar id                                                                      @
+@      r1 = distance limit                                                                @
+@      r2 = pointer for the function to be called in case the alarm rings                 @
+@                                                                                         @
+@ out: r0 = -1: number of max callbacks active in the system is higher than MAX_CALLBACKS @
+@           -2: invalid sonar id                                                          @
+@            0: standard                                                                  @
+@-----------------------------------------------------------------------------------------@
 svc_register_proximity_callback:
     stmfd sp!, {r4-r6, lr}
 
@@ -350,14 +360,17 @@ end_rpc:
 
     mov pc, lr
 
-@@@@
-@ in:  r0 = motor id (0 or 1)
-@      r1 = motor speed
-@
-@ out: r0 = -1: invalid motor id
-@           -2: invalid speed
-@            0: ok
-@@@@
+
+
+@ --- Set Motor Speed (r7 = 18)---@
+@---------------------------------@
+@ in:  r0 = motor id (0 or 1)     @
+@      r1 = motor speed           @
+@                                 @
+@ out: r0 = -1: invalid motor id  @
+@           -2: invalid speed     @
+@            0: ok                @
+@---------------------------------@
 svc_set_motor_speed:
     stmfd sp!, {lr}
 
@@ -416,14 +429,16 @@ end_motor_speed:
     mov pc, lr
 
 
-@@@@
-@ in:  r0 = motor0 speed (0 - 63)
-@      r1 = motor1 speed (0 - 63)
-@
-@ out: r0 = -1: invalid motor0 speed
-@           -2: invalid motor1 speed
-@            0: ok
-@@@@
+
+@---- Set Motors Speed (r7 = 19) -----@
+@-------------------------------------@
+@ in:  r0 = motor0 speed (0 - 63)     @
+@      r1 = motor1 speed (0 - 63)     @
+@                                     @
+@ out: r0 = -1: invalid motor0 speed  @
+@           -2: invalid motor1 speed  @
+@            0: ok                    @
+@-------------------------------------@
 svc_set_motors_speed:
     stmfd sp!, {r4, lr}
 
@@ -459,11 +474,12 @@ end_motors_speed:
     mov pc, lr
 
 
-@@@@
-@ in: --
-@
-@ out: r0 = system time
-@@@@
+@---- Get Time (r7 = 20) ----@
+@----------------------------@
+@ in: --                     @
+@                            @
+@ out: r0 = system time      @
+@----------------------------@
 svc_get_time:
     stmfd sp!, {lr}
     @ Gets system time
@@ -473,11 +489,12 @@ svc_get_time:
     ldmfd sp!, {lr}
     mov pc, lr
 
-@@@@
-@ in: r0 = new system time
-@
-@ out: --
-@@@@
+@---- Set Time (r7 = 21) ----@
+@----------------------------@
+@ in: r0 = new system time   @
+@                            @
+@ out: --                    @
+@----------------------------@
 svc_set_time:
     stmfd sp!, {lr}
 
@@ -488,14 +505,17 @@ svc_set_time:
     ldmfd sp!, {lr}
     mov pc, lr
 
-@@@@
-@ in:  r0 = pointer to alarm funtion
-@      r1 = system time
-@
-@ out: r0 = -1: max number of active alarms is higher than MAX_ALARMS
-@           -2: passed systime is lower than current systime
-@            0: ok
-@@@@
+
+
+@----------------------- Set Alarm (r7 = 22) ---------------------------@
+@-----------------------------------------------------------------------@
+@ in:  r0 = pointer to alarm funtion                                    @
+@      r1 = system time                                                 @
+@                                                                       @
+@ out: r0 = -1: max number of active alarms is higher than MAX_ALARMS   @
+@           -2: passed systime is lower than current systime            @
+@            0: ok                                                      @
+@-----------------------------------------------------------------------@
 svc_set_alarm:
     stmfd sp!, {r4, lr}
     @ Already at maximum number of alarms
@@ -529,6 +549,10 @@ end_set_alarm:
     mov pc, lr
 
 
+
+
+@ ----------------------------- GPT Interrupts (IRQ) ----------------------------@
+
 IRQ_HANDLER:
     @ Constante para GPT_SR
     .set GPT_SR,        0x53FA0008
@@ -549,7 +573,7 @@ IRQ_HANDLER:
 
     str r0, [r1]
 
-@@@@@ CHECK ALL ALARMS
+@ ---------- CHECK ALL ALARMS
     ldr r1, =ALARM_TIMES    @ Times to ring the alarms
     ldr r2, =ALARM_FUN      @ Functions to be called if alarma is ringed
     ldr r3, =ALARM_REGS     @ Number of alarms registered
@@ -587,7 +611,7 @@ finish_alarms:
     strne r0, [r1]
     bne finish_callback
 
-@@@@@ CHECK ALL CALLBACKS
+@ -------------- CHECK ALL CALLBACKS
     mov r0, #0              @ Resets the callback timer
     str r0, [r1]
 
@@ -631,11 +655,13 @@ finish_callback:
 
     movs pc, lr @ Retorna da funcao e realiza CPSR <- SPSR_irq
 
-@@@@@@@@@@@@@@@@@@@@@@ AUXILIAR FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@@@
 
-@@@
-@ in: r0 = time delay (ms)
-@@@
+
+@ ------------------ Delay function ------------------ @
+
+@---------------------------@
+@ in: r0 = time delay (ms)  @
+@---------------------------@
 delay:
     stmfd sp!, {lr}
 
@@ -661,8 +687,12 @@ loop_delay:
 
     mov pc, lr
 
-@@@@@@@@@@@@@@@@@@@@@@@ DATA @@@@@@@@@@@@@@@@@@@@@
+
+
+
+@ ------------------------------------ Data Section -------------------------------@
 .data
+
 .set STACK_SIZE, 0xFF
 
 @ System timer

@@ -4,6 +4,7 @@
 #include "bico.h" /* Robot control API */
 
 void turn_left();
+void spin();
 
 /* main function */
 void _start(void) {
@@ -11,12 +12,8 @@ void _start(void) {
     unsigned int distances[16];
     unsigned short a, b;
 
-    register_proximity_callback(3, 1000, turn_left);
-    register_proximity_callback(4, 1000, turn_left);
-
-    set_motors_speed(40, 40);
-
-    while (1); 
+    add_alarm(spin, get_time() + 1000);
+    while(1);
 
     /*
     // super simple track to exercise all the control functions
@@ -65,4 +62,15 @@ void turn_left(void) {
     return;
 }
 
+void spin(void) {
+    unsigned int i;
+
+    set_motor_speed(0, 63);
+    for (i = 0; i < 100000; i++);
+    set_motor_speed(0, 0);
+
+    set_time(0);
+
+    return;
+}
 

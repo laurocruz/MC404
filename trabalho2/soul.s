@@ -499,22 +499,22 @@ svc_set_time:
 svc_set_alarm:
     stmfd sp!, {r4, lr}
     @ Already at maximum number of alarms
-    ldr r2, =ALARM_REGS
-    ldr r2, [r2]
+    ldr r3, =ALARM_REGS
+    ldr r2, [r3]
     cmp r2, #MAX_ALARMS
     moveq r0, #-1
     beq end_set_alarm
 
     @ New systime lower than current systime
-    mov r4, r1          @ r4 <- systime
-    stmfd sp!, {r0-r3}
-    bl svc_get_time     @ Gets system time
-    cmp r4, r0
-    ldmfd sp!, {r0-r3}
-    movlt r0, #-2       @ if new systime < current systime
-    blt end_set_alarm   @ ends routine
+    ldr r4, =SYS_TIME
+    ldr r4, [r4]         @ r4 <- current systime
+    cmp r1, r4           @ if r1 < r4, does not register alarm
+    movlt r0, #-2
+    blt end_set_alarm
 
     @ All Fine
+    add r4, r2, #1  @ Sets new quantity of set alarms
+    str r4, [r3]
                          @ r2 = Number of registered alarms
     ldr r3, =ALARM_FUN   @ r3 = Array of functions
     ldr r4, =ALARM_TIMES @ r4 = Array of alarm times
@@ -567,10 +567,10 @@ loop_check_alarms:
     addne r2, r2, #4        @ if r5 != systime
     bne loop_check_alarms   @ goes to next alarm
 
+    ldr r7, [r2], #4
     stmfd sp!, {r0-r3}      @ if r5 == systime
-    blx r2                  @ run function
+    blx r7                  @ run function
     ldmfd sp!, {r0-r3}
-    add r2, r2, #4
 
     b loop_check_alarms
 

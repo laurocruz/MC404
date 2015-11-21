@@ -576,29 +576,43 @@ IRQ_HANDLER:
 @ ---------- CHECK ALL ALARMS
     ldr r1, =ALARM_TIMES    @ Times to ring the alarms
     ldr r2, =ALARM_FUN      @ Functions to be called if alarma is ringed
-    ldr r3, =ALARM_REGS     @ Number of alarms registered
-    ldr r3, [r3]
+    ldr r9, =ALARM_REGS     @ Number of alarms registered
+    ldr r3, [r9]
+    mov r8, r3
     mov r4, #0              @ Loop counter
+    mov r6, #0              @ Number of alarms not called
 
 loop_check_alarms:
     add r4, r4, #1          @ Increments counter
     cmp r4, r3              @ Tests if checked all alarms
     bgt finish_alarms
 
-    ldr r5, [r1], #4        @ r5 <- alarm time
+    ldr r5, [r1]            @ r5 <- alarm time
 
     cmp r5, r0
+    addne r1, r1, #4
     addne r2, r2, #4        @ if r5 != systime
+    addne r6, r6, #1        @ Increments number of alarms not called
     bne loop_check_alarms   @ goes to next alarm
 
-    ldr r7, [r2], #4
+    sub r8, r8, #1          @ New quantity of alarms
+
+    ldr r7, [r2]
     stmfd sp!, {r0-r3}      @ if r5 == systime
     blx r7                  @ run function
+    ldmfd sp!, {r0-r3}
+
+    stmfd sp!, {r0-r3}
+    mov r0, r1           @ r0 <- array position of the time being called
+    mov r1, r2           @ r1 <- array position of the func being called
+    sub r2, r8, r6       @ r2 <- Number of alarms still to be testes
+    bl right_shift_array
     ldmfd sp!, {r0-r3}
 
     b loop_check_alarms
 
 finish_alarms:
+    str r8, [r9]        @ Updates number of registered alarms
 
     @ Incrementa CALLBACK_TIME
     ldr r1, =CALLBACK_TIME
@@ -657,6 +671,42 @@ finish_callback:
 
 
 
+@ ------------------ Shift Array ----------------------@
+
+@-------------------------------------------------------------------@
+@ in: r0 = position in array0 to be erased                          @
+@     r1 = position in array1 to be erased                          @
+@     r2 = number of elements in the array from r0/r1 to be shifted @
+@-------------------------------------------------------------------@
+right_shift_array:
+    stmfd sp!, {r4-r5, lr}
+    
+shift_loop:
+    cmp r2, #0
+    beq end_shift
+
+    add r3, r0, #4    @ r3 <- next position to be shifted in array0
+    add r4, r1, #4    @ r4 <- bext position to be shifted in array1
+
+    ldr r5, [r3]      @ Makes the shift
+    str r5, [r0]
+
+    ldr r5, [r4]
+    str r5, [r1]
+
+    mov r0, r3        @ Update values of r0 and r1
+    mov r1, r4
+
+    sub r2, r2, #1    @ Decrements counter
+
+    b shift_loop
+
+end_shift:
+    ldmfd sp!, {r4-r5, lr}
+
+    mov pc, lr
+
+
 @ ------------------ Delay function ------------------ @
 
 @---------------------------@
@@ -710,10 +760,13 @@ ALARM_REGS: .word 0x0
 
 
 @ Array of System Times of the alarms
-ALARM_TIMES: .fill MAX_CALLBACKS, 4, 0x0
+ALARM_TIMES: .fill MAX_ALARMS, 4, 0x0
 
 @ ARRAY of function pointers to be called in the alarm
-ALARM_FUN: .fill MAX_CALLBACKS, 4, 0x0
+ALARM_FUN: .fill MAX_ALARMS, 4, 0x0
+
+@ Array of flags to determine if the alarm is active or not
+ALARM_EN: .fill MAX_ALARMS, 4, 0x0
 
 
 

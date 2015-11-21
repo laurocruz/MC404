@@ -3,48 +3,109 @@
 
 #include "bico.h" /* Robot control API */
 
-void turn_left();
-void spin();
+void segue_parede(void);
+void busca_parede_mode(void);
+void segue_parede_mode(void);
+void turn_left(void);
+void spin(void);
 
 /* main function */
 void _start(void) {
-    unsigned char stop;
-    unsigned int distances[16];
-    unsigned short a, b;
+    
+    register_proximity_callback(3, 900, turn_left);
+    register_proximity_callback(4, 900, turn_left);
 
-    add_alarm(spin, get_time() + 1000);
-    while(1);
-
-    /*
-    // super simple track to exercise all the control functions
     while (1) {
-
-        stop = 0;
-        while(!stop) {
-            read_sonar(3, &a); read_sonar(4, &b);
-            if (a > 1500 && b > 1500) {
-                set_motors_speed(40, 40);
-                stop = 1;
-            }
-        }
-
-        stop = 0;
-        while (!stop) {
-            read_sonar(3, &a); read_sonar(4, &b);
-            if (a < 1500 || b < 1500) {
-                set_motors_speed(2, 2);
-                stop = 1;
-            }
-        }
-
-        read_sonars(distances);
-
-        if ((distances[7] + distances[8]) < (distances[0] + distances[15]))
-            set_motor_speed(0,15);
-        else set_motor_speed(1,15);
-
+        set_motors_speed(40,40);
     }
-    */
+
+}
+
+void ronda(void) {
+
+    
+
+}
+
+
+
+void segue_parede(void) {
+    busca_parede_mode();
+    segue_parede_mode();
+}
+
+void busca_parede_mode(void) {
+    unsigned int d[16];
+    unsigned short s0, s1;
+
+    set_motors_speed(40, 40);
+
+    read_sonar(3, &s0); read_sonar(4, &s1);
+
+    while (s0 > 900 && s1 > 900) {
+        read_sonar(3, &s0); 
+        read_sonar(4, &s1);
+    }
+
+    set_motors_speed(0,0);
+
+    read_sonar(0, &s0); read_sonar(15, &s1);
+    set_motor_speed(1, 6);
+
+    while ( (s0 > 750 && s1 > 750) || ((s0 - s1 >= 12) || (s1 - s0 >= 12)) ) {
+        read_sonar(0, &s0); 
+        read_sonar(15, &s1);
+    }
+    set_motors_speed(0,0);
+}
+
+void segue_parede_mode(void) {
+    unsigned short s0, s15;
+//    register_proximity_callback(3, 900, end_wall);
+//    register_proximity_callback(4, 900, end_wall);
+
+    do {
+        read_sonar(0, &s0); read_sonar(15, &s15);
+        set_motors_speed(15, 15);
+
+        if (s0 > s15) { // Vai se afastar ao seguir reto
+
+            while ((s0 < 500 || s15 < 500)) {
+                read_sonar(0, &s0); 
+                read_sonar(15, &s15);
+            }
+    
+            set_motors_speed(5, 0);
+
+            while (s0 - s15 > 10) {
+                read_sonar(0, &s0); 
+                read_sonar(15, &s15);
+            }
+            set_motors_speed(0, 0);
+
+        } else { // Vai se aproximar ao seguir reto
+            while (s0 > 300 || s15 > 300) {
+                read_sonar(0, &s0); 
+                read_sonar(15, &s15);
+            }
+
+            set_motors_speed(0, 5);
+
+            while (s15 - s0 > 10) {
+                read_sonar(0, &s0); 
+                read_sonar(15, &s15);
+            }
+            set_motors_speed(0, 0);
+        }
+
+    } while(1);
+
+}
+
+void adjust_pos(void) {
+    set_motor_speed(0, 20);
+
+
 }
 
 void turn_left(void) {
@@ -59,18 +120,6 @@ void turn_left(void) {
     }
     set_motor_speed(1, 40);
     
-    return;
-}
-
-void spin(void) {
-    unsigned int i;
-
-    set_motor_speed(0, 63);
-    for (i = 0; i < 100000; i++);
-    set_motor_speed(0, 0);
-
-    set_time(0);
-
     return;
 }
 

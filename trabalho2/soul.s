@@ -28,12 +28,15 @@ interrupt_vector:
 @ ---------------------------------- Reset mode ------------------------------------- @
 
 RESET_HANDLER:
-    .set USER_start_program, 0x77802000
+    .set USER_start_program, 0x77802500
+
     .set SYS_MODE_INT_DIS,   0xDF
     .set IRQ_MODE_INT_DIS,   0xD2
     .set SVC_MODE_INT_DIS,   0xD3
+    .set USR_MODE_INT_DIS,   0xD0
     .set USR_MODE_INT_ENA,   0x10
     .set SVC_MODE_INT_ENA,   0x13
+
     .set IRQ_ENABLE,         0x80
 
     @Set interrupt table base address on coprocessor 15.
@@ -228,8 +231,14 @@ svc_21:
 
 svc_22:
     cmp r7, #22
-    bne svc_end
+    bne svc_23
     bleq svc_set_alarm
+    b svc_end
+
+svc_23:
+    cmp r7, #23
+    bne svc_end
+    beq svc_set_irq
 
 svc_end:
     ldmfd sp!, {r1-r12, lr}
@@ -551,6 +560,20 @@ end_set_alarm:
     mov pc, lr
 
 
+@--- Set IRQ (r7 = 23) ---@
+@-------------------------@
+@ in:  -                  @
+@                         @
+@ out: -                  @
+@-------------------------@
+svc_set_irq:
+    mrs r1, SPSR
+    bic r1, #0xFF
+    orr r1, r1, #IRQ_MODE_INT_DIS
+    msr SPSR, r1
+    
+    ldmfd sp!, {r1-r12, lr}
+    movs pc, lr
 
 
 @ ----------------------------- GPT Interrupts (IRQ) ----------------------------@
@@ -558,7 +581,7 @@ end_set_alarm:
 IRQ_HANDLER:
     @ Constante para GPT_SR
     .set GPT_SR,        0x53FA0008
-    .set DIST_INTERVAL, 40  @ Callback every ~ 100 ms
+    .set DIST_INTERVAL, 40 
 
     stmfd sp!, {r0-r12, lr}
     ldr r1, =GPT_SR
@@ -610,7 +633,12 @@ loop_check_alarms:
 
     ldr r7, [r2]
     stmfd sp!, {r0-r3}      @ if r5 == systime
-    blx r7                  @ run function
+    msr CPSR_c, #USR_MODE_INT_DIS
+    blx r7                          @ run function
+    mov r1, r7                      @ Saves the value of r7
+    mov r7, #23                     @ Calls syscall to change back to IRQ mode
+    svc 0x0
+    mov r7, r1
     ldmfd sp!, {r0-r3}
 
     b loop_check_alarms
@@ -657,7 +685,12 @@ loop_make_callbacks:
 
     ldr r7, [r2]
     stmfd sp!, {r0-r3}     @ if r0 <= r5
-    blx r7                 @ Jumps to user function
+    msr CPSR_c, #USR_MODE_INT_DIS   @ Change to user mode
+    blx r7                          @ run function
+    mov r1, r7                      @ Saves the value of r7
+    mov r7, #23                     @ Calls syscall to change back to IRQ mode
+    svc 0x0
+    mov r7, r1
     ldmfd sp!, {r0-r3}
 
 end_callback_loop:
@@ -739,7 +772,6 @@ loop_delay:
     ldmfd sp!, {lr}
 
     mov pc, lr
-
 
 
 

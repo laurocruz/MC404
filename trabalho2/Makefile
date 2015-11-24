@@ -2,7 +2,7 @@ ASSEMBLER=arm-eabi-as
 LINKER=arm-eabi-ld
 SDMAKER=mksd.sh
 SO_LDFLAGS=--section-start=.iv=0x778005e0 -Ttext=0x77800700 -Tdata=0x77801800 -e 0x778005e0
-USER_LDFLAGS=-Ttext=0x77802000
+USER_LDFLAGS=-Ttext=0x77802500
 SIMULATOR=armsim_player
 GDB=arm-eabi-gdb
 GCC=arm-eabi-gcc

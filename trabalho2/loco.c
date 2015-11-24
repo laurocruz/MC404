@@ -3,29 +3,25 @@
 
 #include "bico.h" /* Robot control API */
 
+    /* Ronda */
+unsigned int turn;
+void ronda(void);
+void forward(void); 
+void turn90(void);
 void force_turn(void);
-void ronda();
-void forward();
-void turn90();
+
+    /* Segue parede */
 void segue_parede(void);
 void busca_parede_mode(void);
 void segue_parede_mode(void);
-void turn_left(void);
-void spin(void);
 
-unsigned int turn;
 
 /* main function */
 void _start(void) {
-
-    ronda();
+    segue_parede();
     while(1);
-
 }
 
-void force_turn(void) {
-    set_time(turn - 1);
-}
 
 void ronda() {
     register_proximity_callback(3, 1000, force_turn);
@@ -54,6 +50,11 @@ void turn90() {
 
 }
 
+void force_turn(void) {
+    set_time(turn - 1);
+}
+
+
 void segue_parede(void) {
     busca_parede_mode();
     segue_parede_mode();
@@ -77,7 +78,7 @@ void busca_parede_mode(void) {
     read_sonar(0, &s0); read_sonar(15, &s1);
     set_motor_speed(1, 6);
 
-    while ( (s0 > 750 && s1 > 750) || ((s0 - s1 >= 12) || (s1 - s0 >= 12)) ) {
+    while ( (s0 > 750 && s1 > 750) || ((s0 - s1 >= 15) || (s1 - s0 >= 15)) ) {
         read_sonar(0, &s0); 
         read_sonar(15, &s1);
     }
@@ -125,26 +126,5 @@ void segue_parede_mode(void) {
 
     } while(1);
 
-}
-
-void adjust_pos(void) {
-    set_motor_speed(0, 20);
-
-
-}
-
-void turn_left(void) {
-    unsigned short a, b;
-
-    set_motor_speed(1, 0);
-
-    read_sonar(3, &a); read_sonar(4, &b);
-    while(a < 1000 || b < 1000) {
-        read_sonar(3, &a);
-        read_sonar(4, &b);
-    }
-    set_motor_speed(1, 40);
-    
-    return;
 }
 

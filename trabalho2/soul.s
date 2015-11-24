@@ -28,7 +28,7 @@ interrupt_vector:
 @ ---------------------------------- Reset mode ------------------------------------- @
 
 RESET_HANDLER:
-    .set USER_start_program, 0x77802500
+    .set USER_start_program, 0x77802000
     .set SYS_MODE_INT_DIS,   0xDF
     .set IRQ_MODE_INT_DIS,   0xD2
     .set SVC_MODE_INT_DIS,   0xD3
@@ -188,7 +188,7 @@ SVC_HANDLER:
 
     @ Enter in supervisor mode
 
-    @msr CPSR_c, #SVC_MODE_INT_ENA
+    msr CPSR_c, #SVC_MODE_INT_ENA
 
 svc_16:
     cmp r7, #16             @ Compares r7 to determine the syscall
